@@ -24,16 +24,18 @@ import Jama.*;
  */
 public class PR_GUI extends javax.swing.JFrame {
 
-    String InputDataFromFile; // dataset from a text file will be placed here
-    int ClassCount=0, FeatureCount=0;
+    FeatureSelector selector;
+//    String InputDataFromFile; // dataset from a text file will be placed here
+ //   int ClassCount=0, FeatureCount=0;
     double[][] F, FNew; // original feature matrix and transformed feature matrix
-    int[] ClassLabels, SampleCount;
-    String[] ClassNames;
+ //   int[] ClassLabels, SampleCount;
+  //  String[] ClassNames;
 
     /** Creates new form PR_GUI */
     public PR_GUI() {
         initComponents();
         setSize(720,410);
+        selector = new FeatureSelector();
     }
 
     /** This method is called from within the constructor to
@@ -353,17 +355,18 @@ public class PR_GUI extends javax.swing.JFrame {
 
     private void readDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readDatasetButtonActionPerformed
         // reads in a text file; contents is placed into a variable of String type
-        InputDataFromFile = readDataSet();
+        selector.readDataSetFromFile();
+        datasetFilenameField.setText(selector.getInputDataFileName());
     }//GEN-LAST:event_readDatasetButtonActionPerformed
 
     private void parseDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parseDatasetButtonActionPerformed
         // Analyze text inputted from a file: determine class number and labels and number
         // of features; build feature matrix: columns - samples, rows - features
         try {
-            if(InputDataFromFile!=null) {
-                getDatasetParameters();
-                featuresNumberField.setText(FeatureCount+"");
-                fillFeatureMatrix();
+            if(selector.getInputData()!=null) {
+                selector.getDatasetParameters();
+                featuresNumberField.setText(selector.getFeatureCount()+"");
+                selector.fillFeatureMatrix();
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,ex.getMessage());
@@ -376,7 +379,7 @@ public class PR_GUI extends javax.swing.JFrame {
         if(F==null) return;
         if(featureSelectionRadio.isSelected()){
             // the chosen strategy is feature selection
-            int[] flags = new int[FeatureCount];
+            int[] flags = new int[selector.getFeatureCount()];
             selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
         }
         else if(featureExtractionRadio.isSelected()){
@@ -459,105 +462,13 @@ public class PR_GUI extends javax.swing.JFrame {
     private javax.swing.JLabel trainingPartLabel;
     // End of variables declaration//GEN-END:variables
 
-    private String readDataSet() {
-
-        String s_tmp, s_out="";
-        JFileChooser jfc = new JFileChooser();
-        jfc.setCurrentDirectory(new File(".."));
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                                            "Datasets - plain text files", "txt");
-        jfc.setFileFilter(filter);
-        if(jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(jfc.getSelectedFile()));
-                while((s_tmp=br.readLine())!=null) s_out += s_tmp + '$';
-                br.close();
-                datasetFilenameField.setText(jfc.getSelectedFile().getName());
-            } catch (Exception e) {        }
-        }
-        return s_out;
-    }
-
-    private void getDatasetParameters() throws Exception{
-        // based on data stored in InputDataFromFile determine: class count and names, number of samples 
-        // and number of features; set the corresponding variables
-        String stmp=InputDataFromFile, saux="";
-        // analyze the first line and get feature count: assume that number of features
-        // equals number of commas
-        saux = InputDataFromFile.substring(InputDataFromFile.indexOf(',')+1, InputDataFromFile.indexOf('$'));
-        if(saux.length()==0) throw new Exception("The first line is empty");
-        // saux stores the first line beginning from the first comma
-        int count=0;
-        while(saux.indexOf(',') >0){
-            saux = saux.substring(saux.indexOf(',')+1);            
-            count++;
-        }
-        FeatureCount = count+1; // the first parameter
-        // Determine number of classes, class names and number of samples per class
-        boolean New;
-        int index=-1;
-        List<String> NameList = new ArrayList<String>();
-        List<Integer> CountList = new ArrayList<Integer>();
-        List<Integer> LabelList = new ArrayList<Integer>();
-        while(stmp.length()>1){
-            saux = stmp.substring(0,stmp.indexOf(' '));
-            New = true; 
-            index++; // new class index
-            for(int i=0; i<NameList.size();i++) 
-                if(saux.equals(NameList.get(i))) {
-                    New=false;
-                    index = i; // class index
-                }
-            if(New) {
-                NameList.add(saux);
-                CountList.add(0);
-            }
-            else{
-                CountList.set(index, CountList.get(index).intValue()+1);
-            }           
-            LabelList.add(index); // class index for current row
-            stmp = stmp.substring(stmp.indexOf('$')+1);
-        }
-        // based on results of the above analysis, create variables
-        ClassNames = new String[NameList.size()];
-        for(int i=0; i<ClassNames.length; i++)
-            ClassNames[i]=NameList.get(i);
-        SampleCount = new int[CountList.size()];
-        for(int i=0; i<SampleCount.length; i++)
-            SampleCount[i] = CountList.get(i).intValue()+1;
-        ClassLabels = new int[LabelList.size()];
-        for(int i=0; i<ClassLabels.length; i++)
-            ClassLabels[i] = LabelList.get(i).intValue();
-    }
-
-    private void fillFeatureMatrix() throws Exception {
-        // having determined array size and class labels, fills in the feature matrix
-        int n = 0;
-        String saux, stmp = InputDataFromFile;
-        for(int i=0; i<SampleCount.length; i++)
-            n += SampleCount[i];
-        if(n<=0) throw new Exception("no samples found");
-        F = new double[FeatureCount][n]; // samples are placed column-wise
-        for(int j=0; j<n; j++){
-            saux = stmp.substring(0,stmp.indexOf('$'));
-            saux = saux.substring(stmp.indexOf(',')+1);
-            for(int i=0; i<FeatureCount-1; i++) {
-                F[i][j] = Double.parseDouble(saux.substring(0,saux.indexOf(',')));
-                saux = saux.substring(saux.indexOf(',')+1);
-            }
-            F[FeatureCount-1][j] = Double.parseDouble(saux);
-            stmp = stmp.substring(stmp.indexOf('$')+1);
-        }
-        int cc = 1;
-    }
-
     private void selectFeatures(int[] flags, int d) {
         // for now: check all individual features using 1D, 2-class Fisher criterion
 
         if(d==1){
             double FLD=0, tmp;
             int max_ind=-1;        
-            for(int i=0; i<FeatureCount; i++){
+            for(int i=0; i<selector.getFeatureCount(); i++){
                 if((tmp=computeFisherLD(F[i]))>FLD){
                     FLD=tmp;
                     max_ind = i;
