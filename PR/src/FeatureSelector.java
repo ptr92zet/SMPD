@@ -1,7 +1,9 @@
 
+import Jama.Matrix;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -168,8 +170,27 @@ public class FeatureSelector {
         }
     }
     
-    private double computeFisherLD(double[] vec) {
+    public void selectFeatures(int[] flags, int d) {
+        // for now: check all individual features using 1D, 2-class Fisher criterion
+
+        if(d==1){
+            double FLD=0, tmp;
+            int max_ind=-1;        
+            for(int i=0; i<featureCount; i++){
+                if((tmp=computeFLD(featureMatrix[i]))>FLD){
+                    FLD=tmp;
+                    max_ind = i;
+                }
+            }
+            bestFeatureNum=max_ind;
+            bestFeatureFLD=FLD;
+        }
+        // to do: compute for higher dimensional spaces, use e.g. SFS for candidate selection
+    }
+    
+    private double computeFLD(double[] vec) {
         // 1D, 2-classes
+        double FLD=-1;
         double mA=0, mB=0, sA=0, sB=0;
         for(int i=0; i<vec.length; i++){
             if(classLabels[i]==0) {
@@ -185,24 +206,46 @@ public class FeatureSelector {
         mB /= sampleCount[1];
         sA = sA/sampleCount[0] - mA*mA;
         sB = sB/sampleCount[1] - mB*mB;
-        return Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
+        FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
+        return FLD;
     }
-
-    public void selectFeatures(int[] flags, int d) {
-        // for now: check all individual features using 1D, 2-class Fisher criterion
-
-        if(d==1){
-            double FLD=0, tmp;
-            int max_ind=-1;        
-            for(int i=0; i<featureCount; i++){
-                if((tmp=computeFisherLD(featureMatrix[i]))>FLD){
-                    FLD=tmp;
-                    max_ind = i;
-                }
-            }
-            bestFeatureNum=max_ind;
-            bestFeatureFLD=FLD;
+    private double computeFLD(Matrix matrix) {
+        // nD, 2-classes
+        double FLD=-1;
+        int rowDim = matrix.getRowDimension();
+        int colDim = matrix.getColumnDimension();
+        int currentRow, nextRow;
+        int[] allColumnsIndices = new int[colDim];
+        for (int i=0; i<colDim; i++) {
+            allColumnsIndices[i] = i;
         }
-        // to do: compute for higher dimensional spaces, use e.g. SFS for candidate selection
+        
+        for (currentRow=0; currentRow<rowDim-1; currentRow++) {
+            for (nextRow=currentRow+1; nextRow<rowDim; nextRow++) {
+                Matrix twoRowsMatrix = matrix.getMatrix(currentRow, nextRow, allColumnsIndices);
+                System.out.println("Rows:");
+                twoRowsMatrix.print(4,3);
+                System.out.println("\n\n");
+                
+            }
+        }
+        
+        double mA=0, mB=0, sA=0, sB=0;
+        for(int i=0; i<vec.length; i++){
+            if(classLabels[i]==0) {
+                mA += vec[i];
+                sA += vec[i]*vec[i];
+            }
+            else {
+                mB += vec[i];
+                sB += vec[i]*vec[i];
+            }
+        }
+        mA /= sampleCount[0];
+        mB /= sampleCount[1];
+        sA = sA/sampleCount[0] - mA*mA;
+        sB = sB/sampleCount[1] - mB*mB;
+        FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
+        return FLD;
     }
 }
