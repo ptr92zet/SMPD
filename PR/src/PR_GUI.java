@@ -375,12 +375,12 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_parseDatasetButtonActionPerformed
 
     private void deriveFeatureSpaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deriveFeatureSpaceButtonActionPerformed
-        // derive optimal feature space
-        if(F==null) return;
+        if(selector.featureMatrix==null) return;
         if(featureSelectionRadio.isSelected()){
-            // the chosen strategy is feature selection
             int[] flags = new int[selector.getFeatureCount()];
-            selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
+            selector.selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
+            fldWinnerField.setText(selector.getBestFeatureNum()+"");
+            fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
         }
         else if(featureExtractionRadio.isSelected()){
             double TotEnergy=Double.parseDouble(pcaEnergyField.getText())/100.0;
@@ -461,44 +461,6 @@ public class PR_GUI extends javax.swing.JFrame {
     private javax.swing.JTextField trainSetSizeField;
     private javax.swing.JLabel trainingPartLabel;
     // End of variables declaration//GEN-END:variables
-
-    private void selectFeatures(int[] flags, int d) {
-        // for now: check all individual features using 1D, 2-class Fisher criterion
-
-        if(d==1){
-            double FLD=0, tmp;
-            int max_ind=-1;        
-            for(int i=0; i<selector.getFeatureCount(); i++){
-                if((tmp=computeFisherLD(F[i]))>FLD){
-                    FLD=tmp;
-                    max_ind = i;
-                }
-            }
-            fldWinnerField.setText(max_ind+"");
-            fldWinnerValueField.setText(FLD+"");
-        }
-        // to do: compute for higher dimensional spaces, use e.g. SFS for candidate selection
-    }
-
-    private double computeFisherLD(double[] vec) {
-        // 1D, 2-classes
-        double mA=0, mB=0, sA=0, sB=0;
-        for(int i=0; i<vec.length; i++){
-            if(ClassLabels[i]==0) {
-                mA += vec[i];
-                sA += vec[i]*vec[i];
-            }
-            else {
-                mB += vec[i];
-                sB += vec[i]*vec[i];
-            }
-        }
-        mA /= SampleCount[0];
-        mB /= SampleCount[1];
-        sA = sA/SampleCount[0] - mA*mA;
-        sB = sB/SampleCount[1] - mB*mB;
-        return Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
-    }
 
     private Matrix extractFeatures(Matrix C, double Ek, int k) {               
         
