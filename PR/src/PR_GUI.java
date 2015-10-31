@@ -24,7 +24,7 @@ import Jama.*;
  */
 public class PR_GUI extends javax.swing.JFrame {
 
-    String InData; // dataset from a text file will be placed here
+    String InputDataFromFile; // dataset from a text file will be placed here
     int ClassCount=0, FeatureCount=0;
     double[][] F, FNew; // original feature matrix and transformed feature matrix
     int[] ClassLabels, SampleCount;
@@ -46,341 +46,341 @@ public class PR_GUI extends javax.swing.JFrame {
     private void initComponents() {
 
         rbg_F = new javax.swing.ButtonGroup();
-        b_read = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        l_dataset_name_l = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        l_dataset_name = new javax.swing.JLabel();
-        l_nfeatures = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        selbox_nfeat = new javax.swing.JComboBox();
-        jSeparator1 = new javax.swing.JSeparator();
-        f_rb_extr = new javax.swing.JRadioButton();
-        f_rb_sel = new javax.swing.JRadioButton();
-        b_deriveFS = new javax.swing.JButton();
-        jLabel10 = new javax.swing.JLabel();
-        f_combo_criterion = new javax.swing.JComboBox();
-        f_combo_PCA_LDA = new javax.swing.JComboBox();
-        jLabel12 = new javax.swing.JLabel();
-        tf_PCA_Energy = new javax.swing.JTextField();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        l_NewDim = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox();
-        b_Train = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jLabel16 = new javax.swing.JLabel();
-        tf_TrainSetSize = new javax.swing.JTextField();
-        jLabel17 = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        l_FLD_winner = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        l_FLD_val = new javax.swing.JLabel();
+        readDatasetButton = new javax.swing.JButton();
+        datasetPanel = new javax.swing.JPanel();
+        datasetPanelLabel = new javax.swing.JLabel();
+        datasetNameLabel = new javax.swing.JLabel();
+        datasetClassesLabel = new javax.swing.JLabel();
+        datasetFeaturesNumLabel = new javax.swing.JLabel();
+        datasetFilenameField = new javax.swing.JLabel();
+        featuresNumberField = new javax.swing.JLabel();
+        parseDatasetButton = new javax.swing.JButton();
+        featureSpacePanel = new javax.swing.JPanel();
+        featureSpacePanelLabel = new javax.swing.JLabel();
+        featureSpaceDimLabel = new javax.swing.JLabel();
+        selectedFeatureSpaceNum = new javax.swing.JComboBox();
+        fsSeparator = new javax.swing.JSeparator();
+        featureExtractionRadio = new javax.swing.JRadioButton();
+        featureSelectionRadio = new javax.swing.JRadioButton();
+        deriveFeatureSpaceButton = new javax.swing.JButton();
+        criterionLabel = new javax.swing.JLabel();
+        criterionComboBox = new javax.swing.JComboBox();
+        pcaLDAComboBox = new javax.swing.JComboBox();
+        energyLabel = new javax.swing.JLabel();
+        pcaEnergyField = new javax.swing.JTextField();
+        percentLabel1 = new javax.swing.JLabel();
+        newDimensionLabel = new javax.swing.JLabel();
+        newDimensionField = new javax.swing.JLabel();
+        bigResultsPanel = new javax.swing.JPanel();
+        classifierPanel = new javax.swing.JPanel();
+        classifierPanelLabel = new javax.swing.JLabel();
+        classifierMethodLabel = new javax.swing.JLabel();
+        classifierSelectComboBox = new javax.swing.JComboBox();
+        trainButton = new javax.swing.JButton();
+        executeButton = new javax.swing.JButton();
+        trainingPartLabel = new javax.swing.JLabel();
+        trainSetSizeField = new javax.swing.JTextField();
+        percentLabel2 = new javax.swing.JLabel();
+        resultsPanel = new javax.swing.JPanel();
+        fsWinnerLabel = new javax.swing.JLabel();
+        fldWinnerField = new javax.swing.JLabel();
+        fldValueLabel = new javax.swing.JLabel();
+        fldWinnerValueField = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(null);
 
-        b_read.setText("Read dataset");
-        b_read.addActionListener(new java.awt.event.ActionListener() {
+        readDatasetButton.setText("Read dataset");
+        readDatasetButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                b_readActionPerformed(evt);
+                readDatasetButtonActionPerformed(evt);
             }
         });
-        getContentPane().add(b_read);
-        b_read.setBounds(20, 10, 130, 25);
+        getContentPane().add(readDatasetButton);
+        readDatasetButton.setBounds(20, 10, 130, 23);
 
-        jPanel2.setBackground(new java.awt.Color(204, 255, 255));
-        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        datasetPanel.setBackground(new java.awt.Color(204, 255, 255));
+        datasetPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jLabel1.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
-        jLabel1.setText("Dataset info");
+        datasetPanelLabel.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
+        datasetPanelLabel.setText("Dataset info");
 
-        l_dataset_name_l.setText("Name:");
+        datasetNameLabel.setText("Name:");
 
-        jLabel3.setText("Classes:");
+        datasetClassesLabel.setText("Classes:");
 
-        jLabel4.setText("Features:");
+        datasetFeaturesNumLabel.setText("Features:");
 
-        l_dataset_name.setText("...");
+        datasetFilenameField.setText("...");
 
-        l_nfeatures.setText("...");
+        featuresNumberField.setText("...");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout datasetPanelLayout = new javax.swing.GroupLayout(datasetPanel);
+        datasetPanel.setLayout(datasetPanelLayout);
+        datasetPanelLayout.setHorizontalGroup(
+            datasetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, datasetPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(l_dataset_name_l)
+                .addGroup(datasetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(datasetPanelLayout.createSequentialGroup()
+                        .addComponent(datasetNameLabel)
                         .addGap(18, 18, 18)
-                        .addComponent(l_dataset_name))
-                    .addComponent(jLabel1))
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(datasetFilenameField))
+                    .addComponent(datasetPanelLabel))
+                .addGroup(datasetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(datasetPanelLayout.createSequentialGroup()
                         .addGap(115, 115, 115)
-                        .addComponent(jLabel3))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(datasetClassesLabel))
+                    .addGroup(datasetPanelLayout.createSequentialGroup()
                         .addGap(94, 94, 94)
-                        .addComponent(jLabel4)
+                        .addComponent(datasetFeaturesNumLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(l_nfeatures)))
+                        .addComponent(featuresNumberField)))
                 .addGap(100, 100, 100))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel3))
+        datasetPanelLayout.setVerticalGroup(
+            datasetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(datasetPanelLayout.createSequentialGroup()
+                .addGroup(datasetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(datasetPanelLabel)
+                    .addComponent(datasetClassesLabel))
                 .addGap(10, 10, 10)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(l_dataset_name_l)
-                    .addComponent(jLabel4)
-                    .addComponent(l_dataset_name)
-                    .addComponent(l_nfeatures))
+                .addGroup(datasetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(datasetNameLabel)
+                    .addComponent(datasetFeaturesNumLabel)
+                    .addComponent(datasetFilenameField)
+                    .addComponent(featuresNumberField))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel2);
-        jPanel2.setBounds(10, 50, 320, 80);
+        getContentPane().add(datasetPanel);
+        datasetPanel.setBounds(10, 50, 320, 80);
 
-        jButton2.setText("Parse dataset");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        parseDatasetButton.setText("Parse dataset");
+        parseDatasetButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                parseDatasetButtonActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton2);
-        jButton2.setBounds(190, 10, 130, 25);
+        getContentPane().add(parseDatasetButton);
+        parseDatasetButton.setBounds(190, 10, 130, 23);
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 204));
-        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel3.setLayout(null);
+        featureSpacePanel.setBackground(new java.awt.Color(255, 255, 204));
+        featureSpacePanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        featureSpacePanel.setLayout(null);
 
-        jLabel5.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
-        jLabel5.setText("Feature space");
-        jPanel3.add(jLabel5);
-        jLabel5.setBounds(14, 2, 118, 26);
+        featureSpacePanelLabel.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
+        featureSpacePanelLabel.setText("Feature space");
+        featureSpacePanel.add(featureSpacePanelLabel);
+        featureSpacePanelLabel.setBounds(14, 2, 118, 26);
 
-        jLabel6.setText("FS Dimension");
-        jPanel3.add(jLabel6);
-        jLabel6.setBounds(178, 9, 78, 16);
+        featureSpaceDimLabel.setText("FS Dimension");
+        featureSpacePanel.add(featureSpaceDimLabel);
+        featureSpaceDimLabel.setBounds(178, 9, 63, 14);
 
-        selbox_nfeat.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1" }));
-        selbox_nfeat.setEnabled(false);
-        jPanel3.add(selbox_nfeat);
-        selbox_nfeat.setBounds(268, 6, 34, 22);
-        jPanel3.add(jSeparator1);
-        jSeparator1.setBounds(14, 41, 290, 10);
+        selectedFeatureSpaceNum.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1" }));
+        selectedFeatureSpaceNum.setEnabled(false);
+        featureSpacePanel.add(selectedFeatureSpaceNum);
+        selectedFeatureSpaceNum.setBounds(268, 6, 31, 20);
+        featureSpacePanel.add(fsSeparator);
+        fsSeparator.setBounds(14, 41, 290, 10);
 
-        f_rb_extr.setBackground(new java.awt.Color(255, 255, 204));
-        rbg_F.add(f_rb_extr);
-        f_rb_extr.setText("Feature extraction");
-        f_rb_extr.addActionListener(new java.awt.event.ActionListener() {
+        featureExtractionRadio.setBackground(new java.awt.Color(255, 255, 204));
+        rbg_F.add(featureExtractionRadio);
+        featureExtractionRadio.setText("Feature extraction");
+        featureExtractionRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                f_rb_extrActionPerformed(evt);
+                featureExtractionRadioActionPerformed(evt);
             }
         });
-        jPanel3.add(f_rb_extr);
-        f_rb_extr.setBounds(10, 110, 133, 25);
+        featureSpacePanel.add(featureExtractionRadio);
+        featureExtractionRadio.setBounds(10, 110, 115, 23);
 
-        f_rb_sel.setBackground(new java.awt.Color(255, 255, 204));
-        rbg_F.add(f_rb_sel);
-        f_rb_sel.setSelected(true);
-        f_rb_sel.setText("Feature selection");
-        f_rb_sel.addActionListener(new java.awt.event.ActionListener() {
+        featureSelectionRadio.setBackground(new java.awt.Color(255, 255, 204));
+        rbg_F.add(featureSelectionRadio);
+        featureSelectionRadio.setSelected(true);
+        featureSelectionRadio.setText("Feature selection");
+        featureSelectionRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                f_rb_selActionPerformed(evt);
+                featureSelectionRadioActionPerformed(evt);
             }
         });
-        jPanel3.add(f_rb_sel);
-        f_rb_sel.setBounds(10, 60, 127, 25);
+        featureSpacePanel.add(featureSelectionRadio);
+        featureSelectionRadio.setBounds(10, 60, 109, 23);
 
-        b_deriveFS.setText("Derive Feature Space");
-        b_deriveFS.addActionListener(new java.awt.event.ActionListener() {
+        deriveFeatureSpaceButton.setText("Derive Feature Space");
+        deriveFeatureSpaceButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                b_deriveFSActionPerformed(evt);
+                deriveFeatureSpaceButtonActionPerformed(evt);
             }
         });
-        jPanel3.add(b_deriveFS);
-        b_deriveFS.setBounds(10, 180, 292, 25);
+        featureSpacePanel.add(deriveFeatureSpaceButton);
+        deriveFeatureSpaceButton.setBounds(10, 180, 292, 23);
 
-        jLabel10.setText("Criterion");
-        jPanel3.add(jLabel10);
-        jLabel10.setBounds(200, 50, 49, 16);
+        criterionLabel.setText("Criterion");
+        featureSpacePanel.add(criterionLabel);
+        criterionLabel.setBounds(200, 50, 41, 14);
 
-        f_combo_criterion.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Fisher discriminant", "Classification error" }));
-        f_combo_criterion.setEnabled(false);
-        jPanel3.add(f_combo_criterion);
-        f_combo_criterion.setBounds(160, 70, 140, 22);
+        criterionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Fisher discriminant", "Classification error" }));
+        criterionComboBox.setEnabled(false);
+        featureSpacePanel.add(criterionComboBox);
+        criterionComboBox.setBounds(160, 70, 140, 20);
 
-        f_combo_PCA_LDA.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "PCA", "LDA" }));
-        f_combo_PCA_LDA.setEnabled(false);
-        jPanel3.add(f_combo_PCA_LDA);
-        f_combo_PCA_LDA.setBounds(190, 110, 70, 22);
+        pcaLDAComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "PCA", "LDA" }));
+        pcaLDAComboBox.setEnabled(false);
+        featureSpacePanel.add(pcaLDAComboBox);
+        pcaLDAComboBox.setBounds(190, 110, 70, 20);
 
-        jLabel12.setText("Energy");
-        jPanel3.add(jLabel12);
-        jLabel12.setBounds(20, 150, 39, 16);
+        energyLabel.setText("Energy");
+        featureSpacePanel.add(energyLabel);
+        energyLabel.setBounds(20, 150, 34, 14);
 
-        tf_PCA_Energy.setText("80");
-        jPanel3.add(tf_PCA_Energy);
-        tf_PCA_Energy.setBounds(70, 150, 30, 22);
+        pcaEnergyField.setText("80");
+        featureSpacePanel.add(pcaEnergyField);
+        pcaEnergyField.setBounds(70, 150, 30, 20);
 
-        jLabel14.setText("%");
-        jPanel3.add(jLabel14);
-        jLabel14.setBounds(110, 150, 20, 16);
+        percentLabel1.setText("%");
+        featureSpacePanel.add(percentLabel1);
+        percentLabel1.setBounds(110, 150, 20, 14);
 
-        jLabel15.setText("New dimension:");
-        jPanel3.add(jLabel15);
-        jLabel15.setBounds(160, 150, 92, 16);
+        newDimensionLabel.setText("New dimension:");
+        featureSpacePanel.add(newDimensionLabel);
+        newDimensionLabel.setBounds(160, 150, 75, 14);
 
-        l_NewDim.setText("...");
-        jPanel3.add(l_NewDim);
-        l_NewDim.setBounds(270, 150, 30, 16);
+        newDimensionField.setText("...");
+        featureSpacePanel.add(newDimensionField);
+        newDimensionField.setBounds(270, 150, 30, 14);
 
-        getContentPane().add(jPanel3);
-        jPanel3.setBounds(10, 140, 320, 220);
+        getContentPane().add(featureSpacePanel);
+        featureSpacePanel.setBounds(10, 140, 320, 220);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        bigResultsPanel.setBackground(new java.awt.Color(255, 255, 255));
+        bigResultsPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout bigResultsPanelLayout = new javax.swing.GroupLayout(bigResultsPanel);
+        bigResultsPanel.setLayout(bigResultsPanelLayout);
+        bigResultsPanelLayout.setHorizontalGroup(
+            bigResultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 156, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        bigResultsPanelLayout.setVerticalGroup(
+            bigResultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 126, Short.MAX_VALUE)
         );
 
-        getContentPane().add(jPanel1);
-        jPanel1.setBounds(530, 10, 160, 130);
+        getContentPane().add(bigResultsPanel);
+        bigResultsPanel.setBounds(530, 10, 160, 130);
 
-        jPanel4.setBackground(new java.awt.Color(204, 255, 204));
-        jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel4.setLayout(null);
+        classifierPanel.setBackground(new java.awt.Color(204, 255, 204));
+        classifierPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        classifierPanel.setLayout(null);
 
-        jLabel8.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
-        jLabel8.setText("Classifier");
-        jPanel4.add(jLabel8);
-        jLabel8.setBounds(10, 0, 79, 26);
+        classifierPanelLabel.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
+        classifierPanelLabel.setText("Classifier");
+        classifierPanel.add(classifierPanelLabel);
+        classifierPanelLabel.setBounds(10, 0, 79, 26);
 
-        jLabel9.setText("Method");
-        jPanel4.add(jLabel9);
-        jLabel9.setBounds(14, 44, 42, 16);
+        classifierMethodLabel.setText("Method");
+        classifierPanel.add(classifierMethodLabel);
+        classifierMethodLabel.setBounds(14, 44, 36, 14);
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Nearest neighbor (NN)", "Nearest Mean (NM)", "k-Nearest Neighbor (k-NN)", "k-Nearest Mean (k-NM)" }));
-        jPanel4.add(jComboBox2);
-        jComboBox2.setBounds(74, 41, 178, 22);
+        classifierSelectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Nearest neighbor (NN)", "Nearest Mean (NM)", "k-Nearest Neighbor (k-NN)", "k-Nearest Mean (k-NM)" }));
+        classifierPanel.add(classifierSelectComboBox);
+        classifierSelectComboBox.setBounds(74, 41, 152, 20);
 
-        b_Train.setText("Train");
-        b_Train.addActionListener(new java.awt.event.ActionListener() {
+        trainButton.setText("Train");
+        trainButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                b_TrainActionPerformed(evt);
+                trainButtonActionPerformed(evt);
             }
         });
-        jPanel4.add(b_Train);
-        b_Train.setBounds(40, 130, 98, 25);
+        classifierPanel.add(trainButton);
+        trainButton.setBounds(40, 130, 98, 23);
 
-        jButton4.setText("Execute");
-        jPanel4.add(jButton4);
-        jButton4.setBounds(210, 130, 96, 25);
+        executeButton.setText("Execute");
+        classifierPanel.add(executeButton);
+        executeButton.setBounds(210, 130, 96, 23);
 
-        jLabel16.setText("Training part:");
-        jPanel4.add(jLabel16);
-        jLabel16.setBounds(20, 170, 80, 16);
+        trainingPartLabel.setText("Training part:");
+        classifierPanel.add(trainingPartLabel);
+        trainingPartLabel.setBounds(20, 170, 80, 14);
 
-        tf_TrainSetSize.setText("80");
-        jPanel4.add(tf_TrainSetSize);
-        tf_TrainSetSize.setBounds(110, 170, 20, 22);
+        trainSetSizeField.setText("80");
+        classifierPanel.add(trainSetSizeField);
+        trainSetSizeField.setBounds(110, 170, 20, 20);
 
-        jLabel17.setText("%");
-        jPanel4.add(jLabel17);
-        jLabel17.setBounds(140, 170, 20, 16);
+        percentLabel2.setText("%");
+        classifierPanel.add(percentLabel2);
+        percentLabel2.setBounds(140, 170, 20, 14);
 
-        getContentPane().add(jPanel4);
-        jPanel4.setBounds(340, 150, 350, 210);
+        getContentPane().add(classifierPanel);
+        classifierPanel.setBounds(340, 150, 350, 210);
 
-        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Results"));
-        jPanel5.setLayout(null);
+        resultsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Results"));
+        resultsPanel.setLayout(null);
 
-        jLabel2.setText("FS Winner:");
-        jPanel5.add(jLabel2);
-        jLabel2.setBounds(10, 30, 70, 16);
+        fsWinnerLabel.setText("FS Winner:");
+        resultsPanel.add(fsWinnerLabel);
+        fsWinnerLabel.setBounds(10, 30, 70, 14);
 
-        l_FLD_winner.setText("xxx");
-        jPanel5.add(l_FLD_winner);
-        l_FLD_winner.setBounds(100, 30, 18, 16);
+        fldWinnerField.setText("xxx");
+        resultsPanel.add(fldWinnerField);
+        fldWinnerField.setBounds(100, 30, 18, 14);
 
-        jLabel13.setText("FLD value: ");
-        jPanel5.add(jLabel13);
-        jLabel13.setBounds(10, 60, 70, 16);
+        fldValueLabel.setText("FLD value: ");
+        resultsPanel.add(fldValueLabel);
+        fldValueLabel.setBounds(10, 60, 70, 14);
 
-        l_FLD_val.setText("vvv");
-        jPanel5.add(l_FLD_val);
-        l_FLD_val.setBounds(100, 60, 48, 16);
+        fldWinnerValueField.setText("vvv");
+        resultsPanel.add(fldWinnerValueField);
+        fldWinnerValueField.setBounds(100, 60, 48, 14);
 
-        getContentPane().add(jPanel5);
-        jPanel5.setBounds(340, 10, 160, 130);
+        getContentPane().add(resultsPanel);
+        resultsPanel.setBounds(340, 10, 160, 130);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void f_rb_selActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_f_rb_selActionPerformed
-        f_combo_criterion.setEnabled(true);
-        f_combo_PCA_LDA.setEnabled(false);
-    }//GEN-LAST:event_f_rb_selActionPerformed
+    private void featureSelectionRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureSelectionRadioActionPerformed
+        criterionComboBox.setEnabled(true);
+        pcaLDAComboBox.setEnabled(false);
+    }//GEN-LAST:event_featureSelectionRadioActionPerformed
 
-    private void f_rb_extrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_f_rb_extrActionPerformed
-        f_combo_criterion.setEnabled(false);
-        f_combo_PCA_LDA.setEnabled(true);
-    }//GEN-LAST:event_f_rb_extrActionPerformed
+    private void featureExtractionRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureExtractionRadioActionPerformed
+        criterionComboBox.setEnabled(false);
+        pcaLDAComboBox.setEnabled(true);
+    }//GEN-LAST:event_featureExtractionRadioActionPerformed
 
-    private void b_readActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_readActionPerformed
+    private void readDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readDatasetButtonActionPerformed
         // reads in a text file; contents is placed into a variable of String type
-        InData = readDataSet();
-    }//GEN-LAST:event_b_readActionPerformed
+        InputDataFromFile = readDataSet();
+    }//GEN-LAST:event_readDatasetButtonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void parseDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parseDatasetButtonActionPerformed
         // Analyze text inputted from a file: determine class number and labels and number
         // of features; build feature matrix: columns - samples, rows - features
         try {
-            if(InData!=null) {
+            if(InputDataFromFile!=null) {
                 getDatasetParameters();
-                l_nfeatures.setText(FeatureCount+"");
+                featuresNumberField.setText(FeatureCount+"");
                 fillFeatureMatrix();
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,ex.getMessage());
         }
         
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_parseDatasetButtonActionPerformed
 
-    private void b_deriveFSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_deriveFSActionPerformed
+    private void deriveFeatureSpaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deriveFeatureSpaceButtonActionPerformed
         // derive optimal feature space
         if(F==null) return;
-        if(f_rb_sel.isSelected()){
+        if(featureSelectionRadio.isSelected()){
             // the chosen strategy is feature selection
             int[] flags = new int[FeatureCount];
-            selectFeatures(flags,Integer.parseInt((String)selbox_nfeat.getSelectedItem()));
+            selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
         }
-        else if(f_rb_extr.isSelected()){
-            double TotEnergy=Double.parseDouble(tf_PCA_Energy.getText())/100.0;
+        else if(featureExtractionRadio.isSelected()){
+            double TotEnergy=Double.parseDouble(pcaEnergyField.getText())/100.0;
             // Target dimension (if k>0) or flag for energy-based dimension (k=0)
             int k=0;
 //            double[][] FF = { {1,1}, {1,2}};
@@ -391,18 +391,18 @@ public class PR_GUI extends javax.swing.JFrame {
             Matrix TransformMat = extractFeatures(Cov,TotEnergy, k);     
             FNew = projectSamples(new Matrix(FFNorm),TransformMat);
             // FNew is a matrix with samples projected to a new feature space
-            l_NewDim.setText(FNew.length+"");
+            newDimensionField.setText(FNew.length+"");
         }
-    }//GEN-LAST:event_b_deriveFSActionPerformed
+    }//GEN-LAST:event_deriveFeatureSpaceButtonActionPerformed
 
-    private void b_TrainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_TrainActionPerformed
+    private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
         
         // first step: split dataset (in new feature space) into training / testing parts
         if(FNew==null) return; // no reduced feature space have been derived
         Classifier Cl = new Classifier();
-        Cl.generateTraining_and_Test_Sets(FNew, tf_TrainSetSize.getText());
+        Cl.generateTraining_and_Test_Sets(FNew, trainSetSizeField.getText());
 
-    }//GEN-LAST:event_b_TrainActionPerformed
+    }//GEN-LAST:event_trainButtonActionPerformed
 
     /**
     * @param args the command line arguments
@@ -416,47 +416,47 @@ public class PR_GUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton b_Train;
-    private javax.swing.JButton b_deriveFS;
-    private javax.swing.JButton b_read;
-    private javax.swing.JComboBox f_combo_PCA_LDA;
-    private javax.swing.JComboBox f_combo_criterion;
-    private javax.swing.JRadioButton f_rb_extr;
-    private javax.swing.JRadioButton f_rb_sel;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JComboBox jComboBox2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel l_FLD_val;
-    private javax.swing.JLabel l_FLD_winner;
-    private javax.swing.JLabel l_NewDim;
-    private javax.swing.JLabel l_dataset_name;
-    private javax.swing.JLabel l_dataset_name_l;
-    private javax.swing.JLabel l_nfeatures;
+    private javax.swing.JPanel bigResultsPanel;
+    private javax.swing.JLabel classifierMethodLabel;
+    private javax.swing.JPanel classifierPanel;
+    private javax.swing.JLabel classifierPanelLabel;
+    private javax.swing.JComboBox classifierSelectComboBox;
+    private javax.swing.JComboBox criterionComboBox;
+    private javax.swing.JLabel criterionLabel;
+    private javax.swing.JLabel datasetClassesLabel;
+    private javax.swing.JLabel datasetFeaturesNumLabel;
+    private javax.swing.JLabel datasetFilenameField;
+    private javax.swing.JLabel datasetNameLabel;
+    private javax.swing.JPanel datasetPanel;
+    private javax.swing.JLabel datasetPanelLabel;
+    private javax.swing.JButton deriveFeatureSpaceButton;
+    private javax.swing.JLabel energyLabel;
+    private javax.swing.JButton executeButton;
+    private javax.swing.JRadioButton featureExtractionRadio;
+    private javax.swing.JRadioButton featureSelectionRadio;
+    private javax.swing.JLabel featureSpaceDimLabel;
+    private javax.swing.JPanel featureSpacePanel;
+    private javax.swing.JLabel featureSpacePanelLabel;
+    private javax.swing.JLabel featuresNumberField;
+    private javax.swing.JLabel fldValueLabel;
+    private javax.swing.JLabel fldWinnerField;
+    private javax.swing.JLabel fldWinnerValueField;
+    private javax.swing.JSeparator fsSeparator;
+    private javax.swing.JLabel fsWinnerLabel;
+    private javax.swing.JLabel newDimensionField;
+    private javax.swing.JLabel newDimensionLabel;
+    private javax.swing.JButton parseDatasetButton;
+    private javax.swing.JTextField pcaEnergyField;
+    private javax.swing.JComboBox pcaLDAComboBox;
+    private javax.swing.JLabel percentLabel1;
+    private javax.swing.JLabel percentLabel2;
     private javax.swing.ButtonGroup rbg_F;
-    private javax.swing.JComboBox selbox_nfeat;
-    private javax.swing.JTextField tf_PCA_Energy;
-    private javax.swing.JTextField tf_TrainSetSize;
+    private javax.swing.JButton readDatasetButton;
+    private javax.swing.JPanel resultsPanel;
+    private javax.swing.JComboBox selectedFeatureSpaceNum;
+    private javax.swing.JButton trainButton;
+    private javax.swing.JTextField trainSetSizeField;
+    private javax.swing.JLabel trainingPartLabel;
     // End of variables declaration//GEN-END:variables
 
     private String readDataSet() {
@@ -472,19 +472,19 @@ public class PR_GUI extends javax.swing.JFrame {
                 BufferedReader br = new BufferedReader(new FileReader(jfc.getSelectedFile()));
                 while((s_tmp=br.readLine())!=null) s_out += s_tmp + '$';
                 br.close();
-                l_dataset_name.setText(jfc.getSelectedFile().getName());
+                datasetFilenameField.setText(jfc.getSelectedFile().getName());
             } catch (Exception e) {        }
         }
         return s_out;
     }
 
     private void getDatasetParameters() throws Exception{
-        // based on data stored in InData determine: class count and names, number of samples 
+        // based on data stored in InputDataFromFile determine: class count and names, number of samples 
         // and number of features; set the corresponding variables
-        String stmp=InData, saux="";
+        String stmp=InputDataFromFile, saux="";
         // analyze the first line and get feature count: assume that number of features
         // equals number of commas
-        saux = InData.substring(InData.indexOf(',')+1, InData.indexOf('$'));
+        saux = InputDataFromFile.substring(InputDataFromFile.indexOf(',')+1, InputDataFromFile.indexOf('$'));
         if(saux.length()==0) throw new Exception("The first line is empty");
         // saux stores the first line beginning from the first comma
         int count=0;
@@ -533,7 +533,7 @@ public class PR_GUI extends javax.swing.JFrame {
     private void fillFeatureMatrix() throws Exception {
         // having determined array size and class labels, fills in the feature matrix
         int n = 0;
-        String saux, stmp = InData;
+        String saux, stmp = InputDataFromFile;
         for(int i=0; i<SampleCount.length; i++)
             n += SampleCount[i];
         if(n<=0) throw new Exception("no samples found");
@@ -563,8 +563,8 @@ public class PR_GUI extends javax.swing.JFrame {
                     max_ind = i;
                 }
             }
-            l_FLD_winner.setText(max_ind+"");
-            l_FLD_val.setText(FLD+"");
+            fldWinnerField.setText(max_ind+"");
+            fldWinnerValueField.setText(FLD+"");
         }
         // to do: compute for higher dimensional spaces, use e.g. SFS for candidate selection
     }

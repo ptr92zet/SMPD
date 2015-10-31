@@ -29,12 +29,12 @@
     <Property name="useNullLayout" type="boolean" value="true"/>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JButton" name="b_read">
+    <Component class="javax.swing.JButton" name="readDatasetButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Read dataset"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="b_readActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="readDatasetButtonActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -42,7 +42,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Container class="javax.swing.JPanel" name="jPanel2">
+    <Container class="javax.swing.JPanel" name="datasetPanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="cc" type="rgb"/>
@@ -66,22 +66,22 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <Component id="l_dataset_name_l" min="-2" max="-2" attributes="0"/>
+                          <Component id="datasetNameLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="l_dataset_name" min="-2" max="-2" attributes="0"/>
+                          <Component id="datasetFilenameField" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="datasetPanelLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="115" max="-2" attributes="0"/>
-                          <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                          <Component id="datasetClassesLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="94" max="-2" attributes="0"/>
-                          <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                          <Component id="datasetFeaturesNumLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="l_nfeatures" min="-2" max="-2" attributes="0"/>
+                          <Component id="featuresNumberField" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace min="-2" pref="100" max="-2" attributes="0"/>
@@ -92,15 +92,15 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="datasetPanelLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="datasetClassesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="l_dataset_name_l" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="l_dataset_name" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="l_nfeatures" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="datasetNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="datasetFeaturesNumLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="datasetFilenameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="featuresNumberField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="24" max="32767" attributes="0"/>
               </Group>
@@ -108,7 +108,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="jLabel1">
+        <Component class="javax.swing.JLabel" name="datasetPanelLabel">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Comic Sans MS" size="18" style="0"/>
@@ -116,39 +116,39 @@
             <Property name="text" type="java.lang.String" value="Dataset info"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="l_dataset_name_l">
+        <Component class="javax.swing.JLabel" name="datasetNameLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Name:"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel3">
+        <Component class="javax.swing.JLabel" name="datasetClassesLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Classes:"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel4">
+        <Component class="javax.swing.JLabel" name="datasetFeaturesNumLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Features:"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="l_dataset_name">
+        <Component class="javax.swing.JLabel" name="datasetFilenameField">
           <Properties>
             <Property name="text" type="java.lang.String" value="..."/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="l_nfeatures">
+        <Component class="javax.swing.JLabel" name="featuresNumberField">
           <Properties>
             <Property name="text" type="java.lang.String" value="..."/>
           </Properties>
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="jButton2">
+    <Component class="javax.swing.JButton" name="parseDatasetButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Parse dataset"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="parseDatasetButtonActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -156,7 +156,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Container class="javax.swing.JPanel" name="jPanel3">
+    <Container class="javax.swing.JPanel" name="featureSpacePanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="cc" green="ff" red="ff" type="rgb"/>
@@ -177,7 +177,7 @@
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="jLabel5">
+        <Component class="javax.swing.JLabel" name="featureSpacePanelLabel">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Comic Sans MS" size="18" style="0"/>
@@ -190,7 +190,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel6">
+        <Component class="javax.swing.JLabel" name="featureSpaceDimLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="FS Dimension"/>
           </Properties>
@@ -200,7 +200,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="selbox_nfeat">
+        <Component class="javax.swing.JComboBox" name="selectedFeatureSpaceNum">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="1">
@@ -215,14 +215,14 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JSeparator" name="jSeparator1">
+        <Component class="javax.swing.JSeparator" name="fsSeparator">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
               <AbsoluteConstraints x="14" y="41" width="290" height="10"/>
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JRadioButton" name="f_rb_extr">
+        <Component class="javax.swing.JRadioButton" name="featureExtractionRadio">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="cc" green="ff" red="ff" type="rgb"/>
@@ -233,7 +233,7 @@
             <Property name="text" type="java.lang.String" value="Feature extraction"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="f_rb_extrActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="featureExtractionRadioActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -241,7 +241,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JRadioButton" name="f_rb_sel">
+        <Component class="javax.swing.JRadioButton" name="featureSelectionRadio">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="cc" green="ff" red="ff" type="rgb"/>
@@ -253,7 +253,7 @@
             <Property name="text" type="java.lang.String" value="Feature selection"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="f_rb_selActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="featureSelectionRadioActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -261,12 +261,12 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="b_deriveFS">
+        <Component class="javax.swing.JButton" name="deriveFeatureSpaceButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Derive Feature Space"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="b_deriveFSActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deriveFeatureSpaceButtonActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -274,7 +274,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel10">
+        <Component class="javax.swing.JLabel" name="criterionLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Criterion"/>
           </Properties>
@@ -284,7 +284,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="f_combo_criterion">
+        <Component class="javax.swing.JComboBox" name="criterionComboBox">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="2">
@@ -300,7 +300,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="f_combo_PCA_LDA">
+        <Component class="javax.swing.JComboBox" name="pcaLDAComboBox">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="2">
@@ -316,7 +316,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel12">
+        <Component class="javax.swing.JLabel" name="energyLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Energy"/>
           </Properties>
@@ -326,7 +326,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JTextField" name="tf_PCA_Energy">
+        <Component class="javax.swing.JTextField" name="pcaEnergyField">
           <Properties>
             <Property name="text" type="java.lang.String" value="80"/>
           </Properties>
@@ -336,7 +336,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel14">
+        <Component class="javax.swing.JLabel" name="percentLabel1">
           <Properties>
             <Property name="text" type="java.lang.String" value="%"/>
           </Properties>
@@ -346,7 +346,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel15">
+        <Component class="javax.swing.JLabel" name="newDimensionLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="New dimension:"/>
           </Properties>
@@ -356,7 +356,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="l_NewDim">
+        <Component class="javax.swing.JLabel" name="newDimensionField">
           <Properties>
             <Property name="text" type="java.lang.String" value="..."/>
           </Properties>
@@ -368,7 +368,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPanel" name="jPanel1">
+    <Container class="javax.swing.JPanel" name="bigResultsPanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -398,7 +398,7 @@
         </DimensionLayout>
       </Layout>
     </Container>
-    <Container class="javax.swing.JPanel" name="jPanel4">
+    <Container class="javax.swing.JPanel" name="classifierPanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="cc" green="ff" red="cc" type="rgb"/>
@@ -419,7 +419,7 @@
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="jLabel8">
+        <Component class="javax.swing.JLabel" name="classifierPanelLabel">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Comic Sans MS" size="18" style="0"/>
@@ -432,7 +432,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel9">
+        <Component class="javax.swing.JLabel" name="classifierMethodLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Method"/>
           </Properties>
@@ -442,7 +442,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="jComboBox2">
+        <Component class="javax.swing.JComboBox" name="classifierSelectComboBox">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="4">
@@ -459,12 +459,12 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="b_Train">
+        <Component class="javax.swing.JButton" name="trainButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Train"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="b_TrainActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="trainButtonActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -472,7 +472,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="jButton4">
+        <Component class="javax.swing.JButton" name="executeButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Execute"/>
           </Properties>
@@ -482,7 +482,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel16">
+        <Component class="javax.swing.JLabel" name="trainingPartLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Training part:"/>
           </Properties>
@@ -492,7 +492,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JTextField" name="tf_TrainSetSize">
+        <Component class="javax.swing.JTextField" name="trainSetSizeField">
           <Properties>
             <Property name="text" type="java.lang.String" value="80"/>
           </Properties>
@@ -502,7 +502,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel17">
+        <Component class="javax.swing.JLabel" name="percentLabel2">
           <Properties>
             <Property name="text" type="java.lang.String" value="%"/>
           </Properties>
@@ -514,7 +514,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPanel" name="jPanel5">
+    <Container class="javax.swing.JPanel" name="resultsPanel">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -532,7 +532,7 @@
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="jLabel2">
+        <Component class="javax.swing.JLabel" name="fsWinnerLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="FS Winner:"/>
           </Properties>
@@ -542,7 +542,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="l_FLD_winner">
+        <Component class="javax.swing.JLabel" name="fldWinnerField">
           <Properties>
             <Property name="text" type="java.lang.String" value="xxx"/>
           </Properties>
@@ -552,7 +552,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel13">
+        <Component class="javax.swing.JLabel" name="fldValueLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="FLD value: "/>
           </Properties>
@@ -562,7 +562,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="l_FLD_val">
+        <Component class="javax.swing.JLabel" name="fldWinnerValueField">
           <Properties>
             <Property name="text" type="java.lang.String" value="vvv"/>
           </Properties>
