@@ -23,12 +23,16 @@ public class FeatureSelector {
     
     private String inputData;
     private String inputDataFileName;
-    int classCount=0, featureCount=0;
+    int featureCount=0;
     double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
-    int[] classLabels, sampleCount;
-    String[] classNames;
     int bestFeatureNum;
     double bestFeatureFLD;
+    
+    int[] classLabels, sampleCount;
+    String[] classNames;
+    List<String> NameList = new ArrayList<String>();
+    List<Integer> CountList = new ArrayList<Integer>();
+    List<Integer> LabelList = new ArrayList<Integer>();
     
     public String getInputData() {
         return this.inputData;
@@ -46,9 +50,9 @@ public class FeatureSelector {
     public int getFeatureCount() {
         return this.featureCount;
     }
-    public int getClassCount() {
-        return this.classCount;
-    }
+    //public int getClassCount() {
+      //  return this.classCount;
+   // }
     public int[] getClassLabels() {
         return this.classLabels;
     }
@@ -68,7 +72,8 @@ public class FeatureSelector {
 
     
     public void readDataSetFromFile() {
-        String line, dataset="";
+        String line="";
+        StringBuilder dataset = new StringBuilder();
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(".."));
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
@@ -78,9 +83,13 @@ public class FeatureSelector {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()));
                 while((line=reader.readLine())!= null) {
-                    dataset += line + '$';
+                    String className = line.toString().split(",")[0].split(" ")[0];
+                    String classFeatures = line.substring(line.indexOf(",")+1);
+                    //String classFeatures = line.split(",")[1];
+                    System.out.println("CLASS: " + className + " | COUNT: " + classFeatures);
+                    dataset.append(line + '$');
                 }
-                this.inputData=dataset;
+                this.inputData=dataset.toString();
                 reader.close();
         //        datasetFilenameField.setText(fileChooser.getSelectedFile().getName());
                 inputDataFileName=fileChooser.getSelectedFile().getName();
@@ -105,12 +114,13 @@ public class FeatureSelector {
         
         boolean isNewClass;
         int classIndex = -1;
-        List<String> NameList = new ArrayList<String>();
-        List<Integer> CountList = new ArrayList<Integer>();
-        List<Integer> LabelList = new ArrayList<Integer>();
         
         while(dataLines.length()>1){
             className = dataLines.substring(0,dataLines.indexOf(' '));
+            //String className2 = dataLines.split(" ", 1)[0];
+            //String classFeatures = dataLines.split(" ", 1)[1];
+            //dataLines = dataLines.substring(dataLines.indexOf('$')+1);
+            //System.out.println(className2);
             isNewClass = true; 
             classIndex++; // new class index
             for(int i=0; i<NameList.size(); i++) 
@@ -120,15 +130,15 @@ public class FeatureSelector {
                 }
             if(isNewClass) {
                 NameList.add(className);
-                CountList.add(0);
+                CountList.add(0); // how many object of a class
             }
             else{
-                CountList.set(classIndex, CountList.get(classIndex).intValue()+1);
+                CountList.set(classIndex, CountList.get(classIndex)+1);
             }           
-            LabelList.add(classIndex); // class index for current row
+            LabelList.add(classIndex); // which feature row is for which class, e.g. 0,1,1,1,0,1...
             dataLines = dataLines.substring(dataLines.indexOf('$')+1);
         }
-        // based on results of the above analysis, create variables
+        // based on results of the above analysis, create ARRAY variables
         classNames = new String[NameList.size()];
         for(int i=0; i<classNames.length; i++) {
             classNames[i]=NameList.get(i);
@@ -136,12 +146,12 @@ public class FeatureSelector {
         
         sampleCount = new int[CountList.size()];
         for(int i=0; i<sampleCount.length; i++) {
-            sampleCount[i] = CountList.get(i).intValue()+1;
+            sampleCount[i] = CountList.get(i)+1;
         }
         
         classLabels = new int[LabelList.size()];
         for(int i=0; i<classLabels.length; i++) {
-            classLabels[i] = LabelList.get(i).intValue();
+            classLabels[i] = LabelList.get(i);
         }
     }
     
@@ -155,7 +165,7 @@ public class FeatureSelector {
         if(samples <= 0) {
             throw new Exception("No samples found!");
         }
-        
+        // TODO: separation between feature matrix for A and B
         featureMatrix = new double[featureCount][samples]; // features-rows, samples-columns (features x samples)
         for(int cols=0; cols<samples; cols++) {
             line = dataLines.substring(0,dataLines.indexOf('$'));
@@ -209,12 +219,16 @@ public class FeatureSelector {
         FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
         return FLD;
     }
-    private double computeFLD(Matrix matrix) {
+    private double computeFLD(Matrix featuresMatrix) {
         // nD, 2-classes
+        Matrix meanMatrix = null;
+        Matrix diffMatrix = null;
+        Matrix sMatrix = null;
+        Matrix currentXMatrix = null;
         double FLD=-1;
-        int rowDim = matrix.getRowDimension();
-        int colDim = matrix.getColumnDimension();
         int currentRow, nextRow;
+        int rowDim = featuresMatrix.getRowDimension();
+        int colDim = featuresMatrix.getColumnDimension();
         int[] allColumnsIndices = new int[colDim];
         for (int i=0; i<colDim; i++) {
             allColumnsIndices[i] = i;
@@ -222,30 +236,39 @@ public class FeatureSelector {
         
         for (currentRow=0; currentRow<rowDim-1; currentRow++) {
             for (nextRow=currentRow+1; nextRow<rowDim; nextRow++) {
-                Matrix twoRowsMatrix = matrix.getMatrix(currentRow, nextRow, allColumnsIndices);
-                System.out.println("Rows:");
-                twoRowsMatrix.print(4,3);
-                System.out.println("\n\n");
+                currentXMatrix = featuresMatrix.getMatrix(currentRow, nextRow, allColumnsIndices);
+                meanMatrix = createMeanMatrix(createMeanVector(currentXMatrix), colDim);
+                diffMatrix = currentXMatrix.minus(meanMatrix);
+                sMatrix = diffMatrix.times(diffMatrix.transpose());
+                //System.out.println("Rows:");
+                //twoRowsMatrix.print(4,3);
+                //System.out.println("\n\n");
                 
             }
         }
-        
-        double mA=0, mB=0, sA=0, sB=0;
-        for(int i=0; i<vec.length; i++){
-            if(classLabels[i]==0) {
-                mA += vec[i];
-                sA += vec[i]*vec[i];
-            }
-            else {
-                mB += vec[i];
-                sB += vec[i]*vec[i];
-            }
-        }
-        mA /= sampleCount[0];
-        mB /= sampleCount[1];
-        sA = sA/sampleCount[0] - mA*mA;
-        sB = sB/sampleCount[1] - mB*mB;
-        FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
+
         return FLD;
+    }
+    
+    private double[][] createMeanVector(Matrix x) {
+        double firstRowSum=0, secondRowSum=0;
+        double[][] currentXArray = x.getArray();
+        double[][] currentMeanVector = null;
+        int colDim = x.getColumnDimension();
+        for (int i=0; i<colDim; i++) {
+            firstRowSum += currentXArray[0][i];
+            secondRowSum += currentXArray[1][i];
+            currentMeanVector[0][0] = firstRowSum / colDim;
+            currentMeanVector[1][0] = secondRowSum / colDim;
+        }
+        return currentMeanVector;
+    }
+    private Matrix createMeanMatrix(double[][] meanVector, int colDim) {
+        double[][] meanArray = new double[2][colDim];
+        for (int i=0; i<colDim; i++) {
+            meanArray[0][i] = meanVector[0][1];
+            meanArray[1][i] = meanVector[1][1];
+        }
+        return new Matrix(meanArray);
     }
 }
