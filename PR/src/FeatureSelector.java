@@ -3,8 +3,9 @@ import Jama.Matrix;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -21,6 +22,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class FeatureSelector {
     
+    boolean isNewClass = true;
     private String inputData;
     private String inputDataFileName;
     int featureCount=0;
@@ -33,6 +35,7 @@ public class FeatureSelector {
     List<String> NameList = new ArrayList<String>();
     List<Integer> CountList = new ArrayList<Integer>();
     List<Integer> LabelList = new ArrayList<Integer>();
+    ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
     
     public String getInputData() {
         return this.inputData;
@@ -73,8 +76,13 @@ public class FeatureSelector {
     
     public void readDataSetFromFile() {
         String line="";
+        double[] values;
+       // boolean isNewClass = true;
         StringBuilder dataset = new StringBuilder();
-        JFileChooser fileChooser = new JFileChooser();
+        List<Matrix> classMatrixes = new ArrayList<Matrix>();
+        
+        JFileChooser fileChooser;
+        fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(".."));
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                                             "Datasets - plain text files", "txt");
@@ -82,12 +90,34 @@ public class FeatureSelector {
         if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()));
+                
                 while((line=reader.readLine())!= null) {
-                    String className = line.toString().split(",")[0].split(" ")[0];
+                    String className = line.split(",")[0].split(" ")[0];
+                    if (isNewClass == true) {
+                        NameList.add(className);
+                    }
+                    
                     String classFeatures = line.substring(line.indexOf(",")+1);
-                    //String classFeatures = line.split(",")[1];
-                    System.out.println("CLASS: " + className + " | COUNT: " + classFeatures);
-                    dataset.append(line + '$');
+                    values = getDoubleValues(classFeatures.split(","));
+                    Tuple<String, double[]> tuple = new Tuple<String, double[]>(className, values);
+                    features.add(tuple);
+//                    for (String name : NameList) {
+//                        if (className.equals(name)) {
+//                            isNewClass = false;
+//                        } else {
+//                            isNewClass = true;
+//                            NameList.add(className);
+//                            featuresValuesString = classFeatures.split(",");
+//                            for(String value: featuresValuesString) {
+//                                featuresValues.add(Double.parseDouble(value));
+//
+//                            }
+//                            classMatrixes.add(new Matrix((double[][])featuresValues.toArray()));
+//                        }
+//                    }
+                    System.out.println("CLASS: " + tuple.getKey() + " | FEATURES: " + Arrays.toString(tuple.getValue()));
+                    
+                    dataset.append(line).append('$');
                 }
                 this.inputData=dataset.toString();
                 reader.close();
@@ -98,6 +128,20 @@ public class FeatureSelector {
     }
     
     public void getDatasetParameters() throws Exception{
+        Iterator it = features.iterator();
+        while(it.hasNext()) {
+            Tuple tuple = (Tuple)it.next();
+            String className = (String)tuple.getKey();
+            for (String name : NameList) {
+                if (className.equals(name)) {
+                    isNewClass = false;
+                } else {
+                    isNewClass = true;
+                    NameList.add(className);
+                }                        
+            }
+        }
+        
         String dataLines=inputData, firstLnSubstr="", className="";
         firstLnSubstr = inputData.substring(inputData.indexOf(',')+1, inputData.indexOf('$'));
         
@@ -195,7 +239,7 @@ public class FeatureSelector {
             bestFeatureNum=max_ind;
             bestFeatureFLD=FLD;
         }
-        // to do: compute for higher dimensional spaces, use e.g. SFS for candidate selection
+        // TODO: compute for higher dimensional spaces, use e.g. SFS for candidate selection
     }
     
     private double computeFLD(double[] vec) {
@@ -270,5 +314,13 @@ public class FeatureSelector {
             meanArray[1][i] = meanVector[1][1];
         }
         return new Matrix(meanArray);
+    }
+    
+    private double[] getDoubleValues(String[] featuresVals) {
+        double[] values = new double[featuresVals.length];
+        for(int i=0; i<values.length; i++) {
+            values[i] = Double.parseDouble(featuresVals[i]);
+        }
+        return values;
     }
 }
