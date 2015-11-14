@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -36,6 +39,8 @@ public class FeatureSelector {
     List<Integer> CountList = new ArrayList<Integer>();
     List<Integer> LabelList = new ArrayList<Integer>();
     ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
+    HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
+    ArrayList<Matrix> classMatrixes = new ArrayList<Matrix>();
     
     public String getInputData() {
         return this.inputData;
@@ -75,11 +80,12 @@ public class FeatureSelector {
 
     
     public void readDataSetFromFile() {
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: readDataSetFromFile");
         String line="";
         double[] values;
        // boolean isNewClass = true;
         StringBuilder dataset = new StringBuilder();
-        List<Matrix> classMatrixes = new ArrayList<Matrix>();
+
         
         JFileChooser fileChooser;
         fileChooser = new JFileChooser();
@@ -93,20 +99,23 @@ public class FeatureSelector {
                 
                 while((line=reader.readLine())!= null) {
                     String className = line.split(",")[0].split(" ")[0];
-                    if (NameList.size() <= 0) {
-                        NameList.add(className);
-                    }
-                    else {
-                        for (String name : NameList) {
-                            if (className.equals(name)) {
-                                break;
-                            }
-                        }
-                    }
-                    
                     String classFeatures = line.substring(line.indexOf(",")+1);
                     values = getDoubleValues(classFeatures.split(","));
                     Tuple<String, double[]> tuple = new Tuple<String, double[]>(className, values);
+                    
+                    if (objectsCount.size() <= 0) {
+                        objectsCount.put(className, 1);
+                    }
+                    else {
+                        if (objectsCount.containsKey(className)) {
+                            int countForClass = objectsCount.get(className)+1;
+                            objectsCount.put(className, countForClass);
+                            break;
+                        }
+                        else {
+                            objectsCount.put(className, 1);
+                        }
+                    }
                     features.add(tuple);
 
                     System.out.println("CLASS: " + tuple.getKey() + " | FEATURES: " + Arrays.toString(tuple.getValue()));
@@ -120,21 +129,33 @@ public class FeatureSelector {
             } catch (Exception e) {        }
         }
     }
+    // ArrayList<Tuple<String, double[]>> features
+    public void createClassMatrixes() {
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes");
+        
+        Iterator setIterator = objectsCount.keySet().iterator();
+        while (setIterator.hasNext()) {
+            String className = (String)setIterator.next();
+            int noOfInstances = objectsCount.get(className);
+            double[][] dataRows = new double[noOfInstances][];
+            int i=0;
+            Iterator it = features.iterator();
+            while(it.hasNext() && i < noOfInstances) {
+                Tuple tuple = (Tuple)it.next();
+                String classNameFromEntry = (String)tuple.getKey();
+                if (classNameFromEntry.equals(className)) {
+                    double[] row = (double[])tuple.getValue();
+                    dataRows[i] = row;
+                    i++;
+                }                
+            }
+            Matrix classMatrix = new Matrix(dataRows);
+            classMatrixes.add(classMatrix.transpose()); // instances are rows and features are columns - so transposing
+        }
+    }
     
     public void getDatasetParameters() throws Exception{
-        Iterator it = features.iterator();
-        while(it.hasNext()) {
-            Tuple tuple = (Tuple)it.next();
-            String className = (String)tuple.getKey();
-            for (String name : NameList) {
-                if (className.equals(name)) {
-                    isNewClass = false;
-                } else {
-                    isNewClass = true;
-                    NameList.add(className);
-                }                        
-            }
-        }
+ 
         
         String dataLines=inputData, firstLnSubstr="", className="";
         firstLnSubstr = inputData.substring(inputData.indexOf(',')+1, inputData.indexOf('$'));
@@ -150,7 +171,6 @@ public class FeatureSelector {
         }
         featureCount = featureNum+1;
         
-        boolean isNewClass;
         int classIndex = -1;
         
         while(dataLines.length()>1){
@@ -237,6 +257,7 @@ public class FeatureSelector {
     }
     
     private double computeFLD(double[] vec) {
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes - 1D, 2 classes");
         // 1D, 2-classes
         double FLD=-1;
         double mA=0, mB=0, sA=0, sB=0;
@@ -275,7 +296,7 @@ public class FeatureSelector {
         for (currentRow=0; currentRow<rowDim-1; currentRow++) {
             for (nextRow=currentRow+1; nextRow<rowDim; nextRow++) {
                 currentXMatrix = featuresMatrix.getMatrix(currentRow, nextRow, allColumnsIndices);
-                meanMatrix = createMeanMatrix(createMeanVector(currentXMatrix), colDim);
+                meanMatrix = createMeanMatrix(currentXMatrix);
                 diffMatrix = currentXMatrix.minus(meanMatrix);
                 sMatrix = diffMatrix.times(diffMatrix.transpose());
                 //System.out.println("Rows:");
@@ -288,20 +309,24 @@ public class FeatureSelector {
         return FLD;
     }
     
-    private double[][] createMeanVector(Matrix x) {
-        double firstRowSum=0, secondRowSum=0;
+    private Matrix createMeanMatrix(Matrix x) {
+        double firstRowSum=0, secondRowSum=0, firstRowMean=0, secondRowMean=0;
         double[][] currentXArray = x.getArray();
-        double[][] currentMeanVector = null;
+        double[][] currentMeanArray = null;
         int colDim = x.getColumnDimension();
         for (int i=0; i<colDim; i++) {
             firstRowSum += currentXArray[0][i];
             secondRowSum += currentXArray[1][i];
-            currentMeanVector[0][0] = firstRowSum / colDim;
-            currentMeanVector[1][0] = secondRowSum / colDim;
         }
-        return currentMeanVector;
+        firstRowMean = firstRowSum / colDim;
+        secondRowMean = secondRowSum / colDim;
+        for (int i=0; i<colDim; i++) {
+            currentMeanArray[0][i] = firstRowMean;
+            currentMeanArray[1][i] = secondRowMean;
+        }
+        return new Matrix(currentMeanArray);
     }
-    private Matrix createMeanMatrix(double[][] meanVector, int colDim) {
+    private Matrix createMeanMatrix_OLD(double[][] meanVector, int colDim) {
         double[][] meanArray = new double[2][colDim];
         for (int i=0; i<colDim; i++) {
             meanArray[0][i] = meanVector[0][1];
