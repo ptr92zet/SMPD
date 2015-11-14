@@ -93,28 +93,22 @@ public class FeatureSelector {
                 
                 while((line=reader.readLine())!= null) {
                     String className = line.split(",")[0].split(" ")[0];
-                    if (isNewClass == true) {
+                    if (NameList.size() <= 0) {
                         NameList.add(className);
+                    }
+                    else {
+                        for (String name : NameList) {
+                            if (className.equals(name)) {
+                                break;
+                            }
+                        }
                     }
                     
                     String classFeatures = line.substring(line.indexOf(",")+1);
                     values = getDoubleValues(classFeatures.split(","));
                     Tuple<String, double[]> tuple = new Tuple<String, double[]>(className, values);
                     features.add(tuple);
-//                    for (String name : NameList) {
-//                        if (className.equals(name)) {
-//                            isNewClass = false;
-//                        } else {
-//                            isNewClass = true;
-//                            NameList.add(className);
-//                            featuresValuesString = classFeatures.split(",");
-//                            for(String value: featuresValuesString) {
-//                                featuresValues.add(Double.parseDouble(value));
-//
-//                            }
-//                            classMatrixes.add(new Matrix((double[][])featuresValues.toArray()));
-//                        }
-//                    }
+
                     System.out.println("CLASS: " + tuple.getKey() + " | FEATURES: " + Arrays.toString(tuple.getValue()));
                     
                     dataset.append(line).append('$');
