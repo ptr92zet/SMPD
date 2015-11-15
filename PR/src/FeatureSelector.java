@@ -309,6 +309,7 @@ public class FeatureSelector {
         Matrix meanMatrix = null;
         Matrix diffMatrix = null;
         Matrix sMatrix = null;
+        double[] meanVector;
        // Matrix currentXMatrix = null;
        // double FLD=-1;
        // int rowDim = currentXMatrix.getRowDimension();
@@ -321,7 +322,8 @@ public class FeatureSelector {
     //    for (currRowIndex=0; currRowIndex<rowDim-1; currRowIndex++) {
     //        for (currRowIndex=currRowIndex+1; currRowIndex<rowDim; currRowIndex++) {
  //               currentXMatrix = featuresMatrix.getMatrix(currRowIndex, currRowIndex, allColumnsIndices);
-                meanMatrix = createMeanMatrix(currentXMatrix);
+                meanVector = createMeanVector(currentXMatrix);
+                meanMatrix = createMeanMatrix(meanVector, currentXMatrix.getColumnDimension());
                 diffMatrix = currentXMatrix.minus(meanMatrix);
                 sMatrix = diffMatrix.times(diffMatrix.transpose());
                 //System.out.println("Rows:");
@@ -330,15 +332,15 @@ public class FeatureSelector {
                 
        //     }
        // }
-        Tuple<Double, Matrix> tuple = new Tuple<Double, Matrix>(sMatrix.det(), meanMatrix);
+        Tuple<Double, Matrix> tuple = new Tuple<Double, Matrix>(sMatrix.det(), new Matrix(meanVector, 1).transpose());
         return tuple;
     }
     
-    private Matrix createMeanMatrix(Matrix x) {
+    private double[] createMeanVector(Matrix currentXMatrix) {
         double firstRowSum=0, secondRowSum=0, firstRowMean=0, secondRowMean=0;
-        double[][] currentXArray = x.getArray();
-        double[][] currentMeanArray = null;
-        int colDim = x.getColumnDimension();
+        double[][] currentXArray = currentXMatrix.getArray();
+        double[] currentMeanVector = null;
+        int colDim = currentXMatrix.getColumnDimension();
         for (int i=0; i<colDim; i++) {
             firstRowSum += currentXArray[0][i];
             secondRowSum += currentXArray[1][i];
@@ -346,17 +348,18 @@ public class FeatureSelector {
         firstRowMean = firstRowSum / colDim;
         secondRowMean = secondRowSum / colDim;
         for (int i=0; i<colDim; i++) {
-            currentMeanArray[0][i] = firstRowMean;
-            currentMeanArray[1][i] = secondRowMean;
+            currentMeanVector[0] = firstRowMean;
+            currentMeanVector[1] = secondRowMean;
         }
-        return new Matrix(currentMeanArray);
+        //Matrix meanVector = new Matrix(currentMeanVector, 1).transpose();
+        return currentMeanVector;
     }
     
-    private Matrix createMeanMatrix_OLD(double[][] meanVector, int colDim) {
+    private Matrix createMeanMatrix(double[] meanVector, int colDim) {
         double[][] meanArray = new double[2][colDim];
         for (int i=0; i<colDim; i++) {
-            meanArray[0][i] = meanVector[0][1];
-            meanArray[1][i] = meanVector[1][1];
+            meanArray[0][i] = meanVector[0];
+            meanArray[1][i] = meanVector[1];
         }
         return new Matrix(meanArray);
     }
