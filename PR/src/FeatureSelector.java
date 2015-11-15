@@ -256,6 +256,32 @@ public class FeatureSelector {
         // TODO: compute for higher dimensional spaces, use e.g. SFS for candidate selection
     }
     
+    public void findBestFLD(Matrix matrixA, Matrix matrixB) throws Exception{
+        Matrix currentXMatrixA, currentXMatrixB;
+        Tuple<Double, Matrix> tupleA;
+        Tuple<Double, Matrix> tupleB;
+        
+        int currRowIndex, nextRowIndex;
+        int rowDim;
+        int[][] colDimensions = new int[2][1];
+        
+        try {
+            colDimensions = compareAndGetColDimensions(matrixA, matrixB);
+            rowDim = matrixA.getRowDimension();
+            for (currRowIndex=0; currRowIndex<rowDim-1; currRowIndex++) {
+                for (nextRowIndex=currRowIndex+1; nextRowIndex<rowDim; nextRowIndex++) {
+                    currentXMatrixA = matrixA.getMatrix(currRowIndex, nextRowIndex, colDimensions[0]);
+                    currentXMatrixB = matrixB.getMatrix(currRowIndex, nextRowIndex, colDimensions[1]);
+                    tupleA = computeDetAndMeanMatrix(currentXMatrixA);
+                    tupleB = computeDetAndMeanMatrix(currentXMatrixB);
+                }
+            }
+        } catch (Exception e){
+            System.out.println("EXCEPTION!!! " + e.getMessage());;
+        }
+
+        
+    }
     private double computeFLD(double[] vec) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes - 1D, 2 classes");
         // 1D, 2-classes
@@ -278,24 +304,23 @@ public class FeatureSelector {
         FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
         return FLD;
     }
-    private double computeFLD(Matrix featuresMatrix) {
+    private Tuple<Double, Matrix> computeDetAndMeanMatrix(Matrix currentXMatrix) {
         // nD, 2-classes
         Matrix meanMatrix = null;
         Matrix diffMatrix = null;
         Matrix sMatrix = null;
-        Matrix currentXMatrix = null;
-        double FLD=-1;
-        int currentRow, nextRow;
-        int rowDim = featuresMatrix.getRowDimension();
-        int colDim = featuresMatrix.getColumnDimension();
-        int[] allColumnsIndices = new int[colDim];
-        for (int i=0; i<colDim; i++) {
-            allColumnsIndices[i] = i;
-        }
+       // Matrix currentXMatrix = null;
+       // double FLD=-1;
+       // int rowDim = currentXMatrix.getRowDimension();
+       // int colDim = currentXMatrix.getColumnDimension();
+       // int[] allColumnsIndices = new int[colDim];
+       // for (int i=0; i<colDim; i++) {
+       //     allColumnsIndices[i] = i;
+       // }
         
-        for (currentRow=0; currentRow<rowDim-1; currentRow++) {
-            for (nextRow=currentRow+1; nextRow<rowDim; nextRow++) {
-                currentXMatrix = featuresMatrix.getMatrix(currentRow, nextRow, allColumnsIndices);
+    //    for (currRowIndex=0; currRowIndex<rowDim-1; currRowIndex++) {
+    //        for (currRowIndex=currRowIndex+1; currRowIndex<rowDim; currRowIndex++) {
+ //               currentXMatrix = featuresMatrix.getMatrix(currRowIndex, currRowIndex, allColumnsIndices);
                 meanMatrix = createMeanMatrix(currentXMatrix);
                 diffMatrix = currentXMatrix.minus(meanMatrix);
                 sMatrix = diffMatrix.times(diffMatrix.transpose());
@@ -303,10 +328,10 @@ public class FeatureSelector {
                 //twoRowsMatrix.print(4,3);
                 //System.out.println("\n\n");
                 
-            }
-        }
-
-        return FLD;
+       //     }
+       // }
+        Tuple<Double, Matrix> tuple = new Tuple<Double, Matrix>(sMatrix.det(), meanMatrix);
+        return tuple;
     }
     
     private Matrix createMeanMatrix(Matrix x) {
@@ -326,6 +351,7 @@ public class FeatureSelector {
         }
         return new Matrix(currentMeanArray);
     }
+    
     private Matrix createMeanMatrix_OLD(double[][] meanVector, int colDim) {
         double[][] meanArray = new double[2][colDim];
         for (int i=0; i<colDim; i++) {
@@ -341,5 +367,28 @@ public class FeatureSelector {
             values[i] = Double.parseDouble(featuresVals[i]);
         }
         return values;
+    }
+    
+    private int[][] compareAndGetColDimensions(Matrix matrixA, Matrix matrixB) throws Exception {
+        int rowDimA = matrixA.getRowDimension();
+        int rowDimB = matrixB.getRowDimension();
+        if (rowDimA != rowDimB) {
+            throw new Exception("Row dimensions of Matrix A and Matrix B are different!"
+                    + " MatrixA rows: " + rowDimA + ", MatrixB rows: " + rowDimB);
+        }
+        int colDimA = matrixA.getColumnDimension();
+        int colDimB = matrixB.getColumnDimension();
+        int[] allColumnsIndicesA = new int[colDimA];
+        int[] allColumnsIndicesB = new int[colDimB];
+        for (int i=0; i<colDimA; i++) {
+            allColumnsIndicesA[i] = i;
+        }
+        for (int i=0; i<colDimB; i++) {
+            allColumnsIndicesB[i] = i;
+        }
+        int[][] colDimensions = new int[2][1];
+        colDimensions[0] = allColumnsIndicesA;
+        colDimensions[1] = allColumnsIndicesB;
+        return colDimensions;
     }
 }
