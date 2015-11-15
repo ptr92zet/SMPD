@@ -86,6 +86,7 @@ public class PR_GUI extends javax.swing.JFrame {
         fldWinnerValueField = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(800, 500));
         getContentPane().setLayout(null);
 
         readDatasetButton.setText("Read dataset");
@@ -266,7 +267,7 @@ public class PR_GUI extends javax.swing.JFrame {
         );
 
         getContentPane().add(bigResultsPanel);
-        bigResultsPanel.setBounds(530, 10, 160, 130);
+        bigResultsPanel.setBounds(590, 10, 160, 130);
 
         classifierPanel.setBackground(new java.awt.Color(204, 255, 204));
         classifierPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -311,7 +312,7 @@ public class PR_GUI extends javax.swing.JFrame {
         percentLabel2.setBounds(140, 170, 20, 14);
 
         getContentPane().add(classifierPanel);
-        classifierPanel.setBounds(340, 150, 350, 210);
+        classifierPanel.setBounds(340, 150, 410, 210);
 
         resultsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Results"));
         resultsPanel.setLayout(null);
@@ -322,7 +323,7 @@ public class PR_GUI extends javax.swing.JFrame {
 
         fldWinnerField.setText("xxx");
         resultsPanel.add(fldWinnerField);
-        fldWinnerField.setBounds(100, 30, 18, 14);
+        fldWinnerField.setBounds(100, 30, 70, 14);
 
         fldValueLabel.setText("FLD value: ");
         resultsPanel.add(fldValueLabel);
@@ -330,10 +331,10 @@ public class PR_GUI extends javax.swing.JFrame {
 
         fldWinnerValueField.setText("vvv");
         resultsPanel.add(fldWinnerValueField);
-        fldWinnerValueField.setBounds(100, 60, 48, 14);
+        fldWinnerValueField.setBounds(100, 60, 80, 14);
 
         getContentPane().add(resultsPanel);
-        resultsPanel.setBounds(340, 10, 160, 130);
+        resultsPanel.setBounds(340, 10, 230, 130);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -349,7 +350,6 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_featureExtractionRadioActionPerformed
 
     private void readDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readDatasetButtonActionPerformed
-
         selector.readDataSetFromFile();
         datasetFilenameField.setText(selector.getInputDataFileName());
     }//GEN-LAST:event_readDatasetButtonActionPerformed
@@ -357,11 +357,12 @@ public class PR_GUI extends javax.swing.JFrame {
     private void parseDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parseDatasetButtonActionPerformed
         // Analyze text inputted from a file: determine class number and labels and number
         // of features; build feature matrix: columns - samples, rows - features
+        System.out.println("Creating classMatrixes");
+        selector.createClassMatrixes();
         try {
             if(selector.getInputData()!=null) {
-                selector.getDatasetParameters();
+               
                 featuresNumberField.setText(selector.getFeatureCount()+"");
-                selector.fillFeatureMatrix();
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,ex.getMessage());
@@ -373,10 +374,8 @@ public class PR_GUI extends javax.swing.JFrame {
         //if(selector.featureMatrix==null) return;
         if(featureSelectionRadio.isSelected()){
            // selector.selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
-            System.out.println("before selector.selectFeatures, featureCount: " + selector.getFeatureCount());
             selector.selectFeatures(selector.getFeatureCount());
-            System.out.println("after selector.selectFeatures");
-            fldWinnerField.setText(selector.getBestFeatureNum()+"a");
+            fldWinnerField.setText(selector.getBestFeatureNum1()+", "+selector.getBestFeatureNum2());
             fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
         }
         else if(featureExtractionRadio.isSelected()){

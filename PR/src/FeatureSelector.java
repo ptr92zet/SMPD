@@ -28,7 +28,7 @@ public class FeatureSelector {
     private String inputDataFileName;
     int featureCount=0;
     double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
-    int bestFeatureNum;
+    int bestFeatureNum1, bestFeatureNum2;
     double bestFeatureFLD;
     
     int[] classLabels, sampleCount;
@@ -49,7 +49,7 @@ public class FeatureSelector {
     public String getInputDataFileName() {
         return this.inputDataFileName;
     }
-    public void setInputDataFileName(String filename) {
+    private void setInputDataFileName(String filename) {
         this.inputDataFileName=filename;
     }
     // only getters
@@ -68,8 +68,11 @@ public class FeatureSelector {
     public String[] getClassNames() {
         return this.classNames;
     }
-    public int getBestFeatureNum() {
-        return this.bestFeatureNum;
+    public int getBestFeatureNum1() {
+        return this.bestFeatureNum1;
+    }
+    public int getBestFeatureNum2() {
+        return this.bestFeatureNum2;
     }
     public double getBestFeatureFLD() {
         return this.bestFeatureFLD;
@@ -120,8 +123,6 @@ public class FeatureSelector {
                 reader.close();
                 inputDataFileName=fileChooser.getSelectedFile().getName();
                 System.out.println("end of readDataSet. " + objectsCount.toString());
-                System.out.println("Creating classMatrixes");
-                createClassMatrixes();
             } catch (Exception e) { e.printStackTrace();       }
         }
     }
@@ -147,6 +148,7 @@ public class FeatureSelector {
             }
             Matrix classMatrix = new Matrix(dataRows);
             classMatrixes.add(classMatrix.transpose()); // instances are rows and features are columns - so transposing
+            System.out.println("End of createClassMatrixes");
         }
     }
     
@@ -237,7 +239,6 @@ public class FeatureSelector {
     public void selectFeatures(int featureSpaceCount) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: selectFeatures");
         if(featureSpaceCount==1){
-            System.out.println("in if featureSpaceCount==1");
             double FLD=0, tmp;
             int max_ind=-1;        
             for(int i=0; i<featureCount; i++){
@@ -246,12 +247,11 @@ public class FeatureSelector {
                     max_ind = i;
                 }
             }
-            bestFeatureNum=max_ind;
+            bestFeatureNum1=max_ind;
             bestFeatureFLD=FLD;
         }
         else {
             try {
-                System.out.println("in if featureSpaceCount else, classMatrixes size: " + classMatrixes.size());
                 bestFeatureFLD = findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -281,7 +281,6 @@ public class FeatureSelector {
                     rowIndices[1] = nextRowIndex;
                     currentXMatrixA = matrixA.getMatrix(rowIndices, colIndices[0]);
                     currentXMatrixB = matrixB.getMatrix(rowIndices, colIndices[1]);
-                    currentXMatrixA.print(4, 2);
                     tupleA = computeDetAndMeanMatrix(currentXMatrixA);
                     tupleB = computeDetAndMeanMatrix(currentXMatrixB);
                     double[] meanVectorA = tupleA.getValue();
@@ -289,10 +288,10 @@ public class FeatureSelector {
                     double diffA = meanVectorA[0] - meanVectorB[0];
                     double diffB = meanVectorA[1] - meanVectorB[1];
                     tmp = Math.sqrt((diffA * diffA) + (diffB * diffB)) / (tupleA.getKey() + tupleB.getKey());
-                    System.out.println("tmp: " + tmp);
                     if (tmp > FLD) {
-                        System.out.println("CHANGING FLD!!!!!!!!!!!!!!!!!!!");
                         FLD = tmp;
+                        bestFeatureNum1 = currRowIndex;
+                        bestFeatureNum2 = nextRowIndex;
                     }
                 }
             }
@@ -345,7 +344,6 @@ public class FeatureSelector {
     private double[] createMeanVector(Matrix currentXMatrix) {
         double firstRowSum=0, secondRowSum=0, firstRowMean=0, secondRowMean=0;
         double[][] currentXArray = currentXMatrix.getArray();
-        System.out.println("double[][] currentXArray in crateMeanVector: " + Arrays.deepToString(currentXArray));
         double[] currentMeanVector = new double[2];
         int colDim = currentXMatrix.getColumnDimension();
         
@@ -353,10 +351,8 @@ public class FeatureSelector {
             firstRowSum += currentXArray[0][i];
             secondRowSum += currentXArray[1][i];
         }
-        System.out.println("firstRowSum: " + firstRowSum + ", secondRowSum: " + secondRowSum);
         firstRowMean = firstRowSum / colDim;
         secondRowMean = secondRowSum / colDim;
-        System.out.println("firstRowMean: " + firstRowMean + ", secondRowMean: " + secondRowMean);
         for (int i=0; i<colDim; i++) {
             currentMeanVector[0] = firstRowMean;
             currentMeanVector[1] = secondRowMean;
