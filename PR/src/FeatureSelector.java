@@ -253,17 +253,26 @@ public class FeatureSelector {
             bestFeatureNum=max_ind;
             bestFeatureFLD=FLD;
         }
+        else {
+            try {
+                bestFeatureFLD = findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         // TODO: compute for higher dimensional spaces, use e.g. SFS for candidate selection
     }
     
-    public void findBestFLD(Matrix matrixA, Matrix matrixB) throws Exception{
+    public double findBestFLD(Matrix matrixA, Matrix matrixB) throws Exception{
         Matrix currentXMatrixA, currentXMatrixB;
-        Tuple<Double, Matrix> tupleA;
-        Tuple<Double, Matrix> tupleB;
+        Tuple<Double, double[]> tupleA;
+        Tuple<Double, double[]> tupleB;
         
         int currRowIndex, nextRowIndex;
         int rowDim;
         int[][] colDimensions = new int[2][1];
+        
+        double FLD = 0, tmp;
         
         try {
             colDimensions = compareAndGetColDimensions(matrixA, matrixB);
@@ -274,14 +283,23 @@ public class FeatureSelector {
                     currentXMatrixB = matrixB.getMatrix(currRowIndex, nextRowIndex, colDimensions[1]);
                     tupleA = computeDetAndMeanMatrix(currentXMatrixA);
                     tupleB = computeDetAndMeanMatrix(currentXMatrixB);
+                    double[] meanVectorA = tupleA.getValue();
+                    double[] meanVectorB = tupleB.getValue();
+                    double diffA = meanVectorA[0] - meanVectorB[0];
+                    double diffB = meanVectorA[1] - meanVectorB[1];
+                    tmp = Math.sqrt((diffA * diffA) + (diffB * diffB)) / (tupleA.getKey() + tupleB.getKey());
+                    if (tmp > FLD) {
+                        FLD = tmp;
+                    }
                 }
             }
         } catch (Exception e){
-            System.out.println("EXCEPTION!!! " + e.getMessage());;
+            System.out.println("EXCEPTION!!! " + e.getMessage());
         }
 
-        
+        return FLD;
     }
+    
     private double computeFLD(double[] vec) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes - 1D, 2 classes");
         // 1D, 2-classes
@@ -304,7 +322,7 @@ public class FeatureSelector {
         FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
         return FLD;
     }
-    private Tuple<Double, Matrix> computeDetAndMeanMatrix(Matrix currentXMatrix) {
+    private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {
         // nD, 2-classes
         Matrix meanMatrix = null;
         Matrix diffMatrix = null;
@@ -332,7 +350,7 @@ public class FeatureSelector {
                 
        //     }
        // }
-        Tuple<Double, Matrix> tuple = new Tuple<Double, Matrix>(sMatrix.det(), new Matrix(meanVector, 1).transpose());
+        Tuple<Double, double[]> tuple = new Tuple<Double, double[]>(sMatrix.det(), meanVector);
         return tuple;
     }
     
