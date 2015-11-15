@@ -31,7 +31,8 @@ public class FeatureSelector {
     private boolean isDataSetRead = false;
     private boolean isDataSetParsed = false;
     private boolean isFeatureSpaceDerived = false;
-
+    private int selectedDimension;
+    
     ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
     HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
     ArrayList<Matrix> classMatrixes = new ArrayList<Matrix>();
@@ -53,6 +54,15 @@ public class FeatureSelector {
     }
     public boolean isDataSetRead() {
         return this.isDataSetRead;
+    }
+    public boolean isDataSetParsed() {
+        return this.isDataSetParsed;
+    }
+    public void setSelectedDimension(int dimension) {
+        this.selectedDimension = dimension;
+    }
+    public int getSelectedDimension() {
+        return this.selectedDimension;
     }
 
 
@@ -129,24 +139,32 @@ public class FeatureSelector {
     
     public void selectFeatures(int featureSpaceCount) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: selectFeatures");
-        if(featureSpaceCount==1){
-            double FLD=0, tmp;
-            int max_ind=-1;        
-            for(int i=0; i<featureCount; i++){
-                if((tmp=computeFLD(featureMatrix[i]))>FLD){
-                    FLD=tmp;
-                    max_ind = i;
-                }
-            }
-            bestFeatureNum1=max_ind;
-            bestFeatureFLD=FLD;
-        }
-        else {
+        if(selectedDimension==1){
+//            double FLD=0, tmp;
+//            int max_ind=-1;        
+//            for(int i=0; i<featureCount; i++){
+//                if((tmp=computeFLD(featureMatrix[i]))>FLD){
+//                    FLD=tmp;
+//                    max_ind = i;
+//                }
+//            }
+//            bestFeatureNum1=max_ind;
+//            bestFeatureFLD=FLD;
             try {
                 bestFeatureFLD = findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        else if (selectedDimension==2) {
+            try {
+                bestFeatureFLD = findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            System.out.println("CANNOT COMPUTE FOR MORE THAN 2D!!!!!!!!!!");
         }
     }
     
@@ -195,28 +213,29 @@ public class FeatureSelector {
         return FLD;
     }
     
-    private double computeFLD(double[] vec) {
-        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes - 1D, 2 classes");
-        // 1D, 2-classes
-        double FLD=-1;
-        double mA=0, mB=0, sA=0, sB=0;
-        for(int i=0; i<vec.length; i++){
-            if(classLabels[i]==0) {
-                mA += vec[i];
-                sA += vec[i]*vec[i];
-            }
-            else {
-                mB += vec[i];
-                sB += vec[i]*vec[i];
-            }
-        }
-        mA /= sampleCount[0];
-        mB /= sampleCount[1];
-        sA = sA/sampleCount[0] - mA*mA;
-        sB = sB/sampleCount[1] - mB*mB;
-        FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
-        return FLD;
-    }
+//    private double computeFLD(double[] vec) {
+//        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes - 1D, 2 classes");
+//        // 1D, 2-classes
+//        double FLD=-1;
+//        double mA=0, mB=0, sA=0, sB=0;
+//        for(int i=0; i<vec.length; i++){
+//            if(classLabels[i]==0) {
+//                mA += vec[i];
+//                sA += vec[i]*vec[i];
+//            }
+//            else {
+//                mB += vec[i];
+//                sB += vec[i]*vec[i];
+//            }
+//        }
+//        mA /= sampleCount[0];
+//        mB /= sampleCount[1];
+//        sA = sA/sampleCount[0] - mA*mA;
+//        sB = sB/sampleCount[1] - mB*mB;
+//        FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
+//        return FLD;
+//    }
+    
     private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: computeDetAndMeanMatrix");
         Matrix meanMatrix = null;

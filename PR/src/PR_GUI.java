@@ -1,10 +1,6 @@
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import Jama.*;
 
 /*
@@ -26,12 +22,18 @@ public class PR_GUI extends javax.swing.JFrame {
 
     FeatureSelector selector;
     double[][] F, FNew; // original feature matrix and transformed feature matrix
+    
 
     /** Creates new form PR_GUI */
     public PR_GUI() {
         initComponents();
         setSize(720,410);
         selector = new FeatureSelector();
+        selector.setSelectedDimension(Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
+        System.out.println("dim: " + selector.getSelectedDimension());
+        for (int i=0; i<64; i++) {
+            selectedFeatureSpaceNum.addItem(Integer.toString(i+1));
+        }
     }
 
     /** This method is called from within the constructor to
@@ -178,8 +180,13 @@ public class PR_GUI extends javax.swing.JFrame {
         featureSpaceDimLabel.setBounds(178, 9, 63, 14);
 
         selectedFeatureSpaceNum.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1" }));
+        selectedFeatureSpaceNum.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                selectedFeatureSpaceNumItemStateChanged(evt);
+            }
+        });
         featureSpacePanel.add(selectedFeatureSpaceNum);
-        selectedFeatureSpaceNum.setBounds(268, 6, 31, 20);
+        selectedFeatureSpaceNum.setBounds(249, 6, 60, 20);
         featureSpacePanel.add(fsSeparator);
         fsSeparator.setBounds(14, 41, 290, 10);
 
@@ -366,9 +373,14 @@ public class PR_GUI extends javax.swing.JFrame {
 
     private void deriveFeatureSpaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deriveFeatureSpaceButtonActionPerformed
         if(featureSelectionRadio.isSelected()){
-            selector.selectFeatures(selector.getFeatureCount());
-            fldWinnerField.setText(selector.getBestFeatureNum1()+", "+selector.getBestFeatureNum2());
-            fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
+            if (selector.isDataSetParsed()) {
+                selector.selectFeatures(selector.getSelectedDimension());
+                fldWinnerField.setText(selector.getBestFeatureNum1()+", "+selector.getBestFeatureNum2());
+                fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "You need to parse data set first!");
+            }
         }
         else if(featureExtractionRadio.isSelected()){
             double TotEnergy=Double.parseDouble(pcaEnergyField.getText())/100.0;
@@ -393,6 +405,10 @@ public class PR_GUI extends javax.swing.JFrame {
         Cl.generateTraining_and_Test_Sets(FNew, trainSetSizeField.getText());
 
     }//GEN-LAST:event_trainButtonActionPerformed
+
+    private void selectedFeatureSpaceNumItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectedFeatureSpaceNumItemStateChanged
+        selector.setSelectedDimension(Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
+    }//GEN-LAST:event_selectedFeatureSpaceNumItemStateChanged
 
     /**
     * @param args the command line arguments
