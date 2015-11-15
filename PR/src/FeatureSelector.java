@@ -4,12 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -24,7 +22,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Piotr
  */
 public class FeatureSelector {
-    
     boolean isNewClass = true;
     private String inputData;
     private String inputDataFileName;
@@ -83,7 +80,6 @@ public class FeatureSelector {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: readDataSetFromFile");
         String line="";
         double[] values;
-       // boolean isNewClass = true;
         StringBuilder dataset = new StringBuilder();
 
         
@@ -117,19 +113,15 @@ public class FeatureSelector {
                         }
                     }
                     features.add(tuple);
-
-                    System.out.println("CLASS: " + tuple.getKey() + " | FEATURES: " + Arrays.toString(tuple.getValue()));
-                    
                     dataset.append(line).append('$');
                 }
                 this.inputData=dataset.toString();
                 reader.close();
-        //        datasetFilenameField.setText(fileChooser.getSelectedFile().getName());
                 inputDataFileName=fileChooser.getSelectedFile().getName();
             } catch (Exception e) {        }
         }
     }
-    // ArrayList<Tuple<String, double[]>> features
+
     public void createClassMatrixes() {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes");
         
@@ -239,8 +231,7 @@ public class FeatureSelector {
     }
     
     public void selectFeatures(int[] flags, int d) {
-        // for now: check all individual features using 1D, 2-class Fisher criterion
-
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes");
         if(d==1){
             double FLD=0, tmp;
             int max_ind=-1;        
@@ -260,10 +251,10 @@ public class FeatureSelector {
                 e.printStackTrace();
             }
         }
-        // TODO: compute for higher dimensional spaces, use e.g. SFS for candidate selection
     }
     
     public double findBestFLD(Matrix matrixA, Matrix matrixB) throws Exception{
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: findBestFLD");
         Matrix currentXMatrixA, currentXMatrixB;
         Tuple<Double, double[]> tupleA;
         Tuple<Double, double[]> tupleB;
@@ -323,34 +314,18 @@ public class FeatureSelector {
         return FLD;
     }
     private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {
-        // nD, 2-classes
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: computeDetAndMeanMatrix");
         Matrix meanMatrix = null;
         Matrix diffMatrix = null;
         Matrix sMatrix = null;
         double[] meanVector;
-       // Matrix currentXMatrix = null;
-       // double FLD=-1;
-       // int rowDim = currentXMatrix.getRowDimension();
-       // int colDim = currentXMatrix.getColumnDimension();
-       // int[] allColumnsIndices = new int[colDim];
-       // for (int i=0; i<colDim; i++) {
-       //     allColumnsIndices[i] = i;
-       // }
         
-    //    for (currRowIndex=0; currRowIndex<rowDim-1; currRowIndex++) {
-    //        for (currRowIndex=currRowIndex+1; currRowIndex<rowDim; currRowIndex++) {
- //               currentXMatrix = featuresMatrix.getMatrix(currRowIndex, currRowIndex, allColumnsIndices);
-                meanVector = createMeanVector(currentXMatrix);
-                meanMatrix = createMeanMatrix(meanVector, currentXMatrix.getColumnDimension());
-                diffMatrix = currentXMatrix.minus(meanMatrix);
-                sMatrix = diffMatrix.times(diffMatrix.transpose());
-                //System.out.println("Rows:");
-                //twoRowsMatrix.print(4,3);
-                //System.out.println("\n\n");
-                
-       //     }
-       // }
+        meanVector = createMeanVector(currentXMatrix);
+        meanMatrix = createMeanMatrix(meanVector, currentXMatrix.getColumnDimension());
+        diffMatrix = currentXMatrix.minus(meanMatrix);
+        sMatrix = diffMatrix.times(diffMatrix.transpose());
         Tuple<Double, double[]> tuple = new Tuple<Double, double[]>(sMatrix.det(), meanVector);
+        
         return tuple;
     }
     
@@ -359,6 +334,7 @@ public class FeatureSelector {
         double[][] currentXArray = currentXMatrix.getArray();
         double[] currentMeanVector = null;
         int colDim = currentXMatrix.getColumnDimension();
+        
         for (int i=0; i<colDim; i++) {
             firstRowSum += currentXArray[0][i];
             secondRowSum += currentXArray[1][i];
@@ -369,24 +345,28 @@ public class FeatureSelector {
             currentMeanVector[0] = firstRowMean;
             currentMeanVector[1] = secondRowMean;
         }
-        //Matrix meanVector = new Matrix(currentMeanVector, 1).transpose();
+        
         return currentMeanVector;
     }
     
     private Matrix createMeanMatrix(double[] meanVector, int colDim) {
         double[][] meanArray = new double[2][colDim];
+        
         for (int i=0; i<colDim; i++) {
             meanArray[0][i] = meanVector[0];
             meanArray[1][i] = meanVector[1];
         }
+        
         return new Matrix(meanArray);
     }
     
     private double[] getDoubleValues(String[] featuresVals) {
         double[] values = new double[featuresVals.length];
+        
         for(int i=0; i<values.length; i++) {
             values[i] = Double.parseDouble(featuresVals[i]);
         }
+        
         return values;
     }
     
@@ -401,6 +381,7 @@ public class FeatureSelector {
         int colDimB = matrixB.getColumnDimension();
         int[] allColumnsIndicesA = new int[colDimA];
         int[] allColumnsIndicesB = new int[colDimB];
+        
         for (int i=0; i<colDimA; i++) {
             allColumnsIndicesA[i] = i;
         }
@@ -410,6 +391,7 @@ public class FeatureSelector {
         int[][] colDimensions = new int[2][1];
         colDimensions[0] = allColumnsIndicesA;
         colDimensions[1] = allColumnsIndicesB;
+        
         return colDimensions;
     }
 }

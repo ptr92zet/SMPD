@@ -25,11 +25,7 @@ import Jama.*;
 public class PR_GUI extends javax.swing.JFrame {
 
     FeatureSelector selector;
-//    String InputDataFromFile; // dataset from a text file will be placed here
- //   int ClassCount=0, FeatureCount=0;
     double[][] F, FNew; // original feature matrix and transformed feature matrix
- //   int[] ClassLabels, SampleCount;
-  //  String[] ClassNames;
 
     /** Creates new form PR_GUI */
     public PR_GUI() {
@@ -354,7 +350,7 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_featureExtractionRadioActionPerformed
 
     private void readDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readDatasetButtonActionPerformed
-        // reads in a text file; contents is placed into a variable of String type
+
         selector.readDataSetFromFile();
         datasetFilenameField.setText(selector.getInputDataFileName());
     }//GEN-LAST:event_readDatasetButtonActionPerformed
