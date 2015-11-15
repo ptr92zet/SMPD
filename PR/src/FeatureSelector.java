@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -97,6 +98,7 @@ public class FeatureSelector {
                     String className = line.split(",")[0].split(" ")[0];
                     String classFeatures = line.substring(line.indexOf(",")+1);
                     values = getDoubleValues(classFeatures.split(","));
+                    featureCount = values.length;
                     Tuple<String, double[]> tuple = new Tuple<String, double[]>(className, values);
                     
                     if (objectsCount.size() <= 0) {
@@ -106,7 +108,6 @@ public class FeatureSelector {
                         if (objectsCount.containsKey(className)) {
                             int countForClass = objectsCount.get(className)+1;
                             objectsCount.put(className, countForClass);
-                            break;
                         }
                         else {
                             objectsCount.put(className, 1);
@@ -118,7 +119,10 @@ public class FeatureSelector {
                 this.inputData=dataset.toString();
                 reader.close();
                 inputDataFileName=fileChooser.getSelectedFile().getName();
-            } catch (Exception e) {        }
+                System.out.println("end of readDataSet. " + objectsCount.toString());
+                System.out.println("Creating classMatrixes");
+                createClassMatrixes();
+            } catch (Exception e) { e.printStackTrace();       }
         }
     }
 
@@ -230,9 +234,10 @@ public class FeatureSelector {
         }
     }
     
-    public void selectFeatures(int[] flags, int d) {
-        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes");
-        if(d==1){
+    public void selectFeatures(int featureSpaceCount) {
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: selectFeatures");
+        if(featureSpaceCount==1){
+            System.out.println("in if featureSpaceCount==1");
             double FLD=0, tmp;
             int max_ind=-1;        
             for(int i=0; i<featureCount; i++){
@@ -246,6 +251,7 @@ public class FeatureSelector {
         }
         else {
             try {
+                System.out.println("in if featureSpaceCount else, classMatrixes size: " + classMatrixes.size());
                 bestFeatureFLD = findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -261,17 +267,21 @@ public class FeatureSelector {
         
         int currRowIndex, nextRowIndex;
         int rowDim;
-        int[][] colDimensions = new int[2][1];
+        int[][] colIndices = new int[2][1];
+        int[] rowIndices = new int[2];
         
         double FLD = 0, tmp;
         
         try {
-            colDimensions = compareAndGetColDimensions(matrixA, matrixB);
+            colIndices = compareAndGetColDimensions(matrixA, matrixB);
             rowDim = matrixA.getRowDimension();
             for (currRowIndex=0; currRowIndex<rowDim-1; currRowIndex++) {
                 for (nextRowIndex=currRowIndex+1; nextRowIndex<rowDim; nextRowIndex++) {
-                    currentXMatrixA = matrixA.getMatrix(currRowIndex, nextRowIndex, colDimensions[0]);
-                    currentXMatrixB = matrixB.getMatrix(currRowIndex, nextRowIndex, colDimensions[1]);
+                    rowIndices[0] = currRowIndex;
+                    rowIndices[1] = nextRowIndex;
+                    currentXMatrixA = matrixA.getMatrix(rowIndices, colIndices[0]);
+                    currentXMatrixB = matrixB.getMatrix(rowIndices, colIndices[1]);
+                    currentXMatrixA.print(4, 2);
                     tupleA = computeDetAndMeanMatrix(currentXMatrixA);
                     tupleB = computeDetAndMeanMatrix(currentXMatrixB);
                     double[] meanVectorA = tupleA.getValue();
@@ -279,15 +289,18 @@ public class FeatureSelector {
                     double diffA = meanVectorA[0] - meanVectorB[0];
                     double diffB = meanVectorA[1] - meanVectorB[1];
                     tmp = Math.sqrt((diffA * diffA) + (diffB * diffB)) / (tupleA.getKey() + tupleB.getKey());
+                    System.out.println("tmp: " + tmp);
                     if (tmp > FLD) {
+                        System.out.println("CHANGING FLD!!!!!!!!!!!!!!!!!!!");
                         FLD = tmp;
                     }
                 }
             }
         } catch (Exception e){
             System.out.println("EXCEPTION!!! " + e.getMessage());
+            e.printStackTrace();
         }
-
+        System.out.println("FLD: " + FLD);
         return FLD;
     }
     
@@ -319,7 +332,7 @@ public class FeatureSelector {
         Matrix diffMatrix = null;
         Matrix sMatrix = null;
         double[] meanVector;
-        
+
         meanVector = createMeanVector(currentXMatrix);
         meanMatrix = createMeanMatrix(meanVector, currentXMatrix.getColumnDimension());
         diffMatrix = currentXMatrix.minus(meanMatrix);
@@ -332,15 +345,18 @@ public class FeatureSelector {
     private double[] createMeanVector(Matrix currentXMatrix) {
         double firstRowSum=0, secondRowSum=0, firstRowMean=0, secondRowMean=0;
         double[][] currentXArray = currentXMatrix.getArray();
-        double[] currentMeanVector = null;
+        System.out.println("double[][] currentXArray in crateMeanVector: " + Arrays.deepToString(currentXArray));
+        double[] currentMeanVector = new double[2];
         int colDim = currentXMatrix.getColumnDimension();
         
         for (int i=0; i<colDim; i++) {
             firstRowSum += currentXArray[0][i];
             secondRowSum += currentXArray[1][i];
         }
+        System.out.println("firstRowSum: " + firstRowSum + ", secondRowSum: " + secondRowSum);
         firstRowMean = firstRowSum / colDim;
         secondRowMean = secondRowSum / colDim;
+        System.out.println("firstRowMean: " + firstRowMean + ", secondRowMean: " + secondRowMean);
         for (int i=0; i<colDim; i++) {
             currentMeanVector[0] = firstRowMean;
             currentMeanVector[1] = secondRowMean;

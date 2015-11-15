@@ -177,7 +177,6 @@ public class PR_GUI extends javax.swing.JFrame {
         featureSpaceDimLabel.setBounds(178, 9, 63, 14);
 
         selectedFeatureSpaceNum.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1" }));
-        selectedFeatureSpaceNum.setEnabled(false);
         featureSpacePanel.add(selectedFeatureSpaceNum);
         selectedFeatureSpaceNum.setBounds(268, 6, 31, 20);
         featureSpacePanel.add(fsSeparator);
@@ -371,11 +370,13 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_parseDatasetButtonActionPerformed
 
     private void deriveFeatureSpaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deriveFeatureSpaceButtonActionPerformed
-        if(selector.featureMatrix==null) return;
+        //if(selector.featureMatrix==null) return;
         if(featureSelectionRadio.isSelected()){
-            int[] flags = new int[selector.getFeatureCount()];
-            selector.selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
-            fldWinnerField.setText(selector.getBestFeatureNum()+"");
+           // selector.selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
+            System.out.println("before selector.selectFeatures, featureCount: " + selector.getFeatureCount());
+            selector.selectFeatures(selector.getFeatureCount());
+            System.out.println("after selector.selectFeatures");
+            fldWinnerField.setText(selector.getBestFeatureNum()+"a");
             fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
         }
         else if(featureExtractionRadio.isSelected()){
