@@ -26,12 +26,14 @@ public class FeatureSelector {
     private String inputDataFileName;
     private int featureCount=0;
     private double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
-    private int bestFeatureNum1, bestFeatureNum2;
+    private int bestFeatureNum1, bestFeatureNum2, bestFeatureNum3;
     private double bestFeatureFLD;
     private boolean isDataSetRead = false;
     private boolean isDataSetParsed = false;
     private boolean isFeatureSpaceDerived = false;
     private int selectedDimension;
+    
+    private int stepCounter = 0;
     
     ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
     HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
@@ -139,7 +141,7 @@ public class FeatureSelector {
     
     public void selectFeatures(int featureSpaceCount) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: selectFeatures");
-        if(selectedDimension==1){
+        if (selectedDimension == 1) {
 //            double FLD=0, tmp;
 //            int max_ind=-1;        
 //            for(int i=0; i<featureCount; i++){
@@ -155,16 +157,18 @@ public class FeatureSelector {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        else if (selectedDimension==2) {
+        } else if (selectedDimension == 2) {
             try {
                 bestFeatureFLD = findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        else {
-            System.out.println("CANNOT COMPUTE FOR MORE THAN 2D!!!!!!!!!!");
+        } else {
+            try {
+                bestFeatureFLD = findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     
@@ -174,10 +178,10 @@ public class FeatureSelector {
         Tuple<Double, double[]> tupleA;
         Tuple<Double, double[]> tupleB;
         
-        int currRowIndex, nextRowIndex;
+        int currRowIndex, nextRowIndex, nextNextRowIndex;
         int rowDim;
         int[][] colIndices = new int[2][1];
-        int[] rowIndices = new int[2];
+        int[] rowIndices = new int[3];
         
         double FLD = 0, tmp;
         
@@ -186,21 +190,31 @@ public class FeatureSelector {
             rowDim = matrixA.getRowDimension();
             for (currRowIndex=0; currRowIndex<rowDim-1; currRowIndex++) {
                 for (nextRowIndex=currRowIndex+1; nextRowIndex<rowDim; nextRowIndex++) {
-                    rowIndices[0] = currRowIndex;
-                    rowIndices[1] = nextRowIndex;
-                    currentXMatrixA = matrixA.getMatrix(rowIndices, colIndices[0]);
-                    currentXMatrixB = matrixB.getMatrix(rowIndices, colIndices[1]);
-                    tupleA = computeDetAndMeanMatrix(currentXMatrixA);
-                    tupleB = computeDetAndMeanMatrix(currentXMatrixB);
-                    double[] meanVectorA = tupleA.getValue();
-                    double[] meanVectorB = tupleB.getValue();
-                    double diffA = meanVectorA[0] - meanVectorB[0];
-                    double diffB = meanVectorA[1] - meanVectorB[1];
-                    tmp = Math.sqrt((diffA * diffA) + (diffB * diffB)) / (tupleA.getKey() + tupleB.getKey());
-                    if (tmp > FLD) {
-                        FLD = tmp;
-                        bestFeatureNum1 = currRowIndex;
-                        bestFeatureNum2 = nextRowIndex;
+                    for (nextNextRowIndex = nextRowIndex+1; nextNextRowIndex < rowDim; nextNextRowIndex++) {
+                        rowIndices[0] = currRowIndex;
+                        rowIndices[1] = nextRowIndex;
+                        rowIndices[2] = nextNextRowIndex;
+                        
+                        currentXMatrixA = matrixA.getMatrix(rowIndices, colIndices[0]);
+                        currentXMatrixB = matrixB.getMatrix(rowIndices, colIndices[1]);
+                        
+                        tupleA = computeDetAndMeanMatrix(currentXMatrixA);
+                        tupleB = computeDetAndMeanMatrix(currentXMatrixB);
+                        
+                        double[] meanVectorA = tupleA.getValue();
+                        double[] meanVectorB = tupleB.getValue();
+                        
+                        double diffA = meanVectorA[0] - meanVectorB[0];
+                        double diffB = meanVectorA[1] - meanVectorB[1];
+                        double diffC = meanVectorA[2] - meanVectorB[2];
+                        
+                        tmp = Math.sqrt((diffA * diffA) + (diffB * diffB) + (diffC * diffC)) / (tupleA.getKey() + tupleB.getKey());
+                        if (tmp > FLD) {
+                            FLD = tmp;
+                            bestFeatureNum1 = currRowIndex;
+                            bestFeatureNum2 = nextRowIndex;
+                            bestFeatureNum3 = nextNextRowIndex;
+                        }
                     }
                 }
             }
@@ -209,7 +223,7 @@ public class FeatureSelector {
             e.printStackTrace();
         }
         System.out.println("Found best FLD: " + FLD);
-        System.out.println("The winners are: " + bestFeatureNum1 + ", " + bestFeatureNum2);
+        System.out.println("The winners are: " + bestFeatureNum1 + ", " + bestFeatureNum2 + ", " + bestFeatureNum3);
         return FLD;
     }
     
@@ -237,7 +251,7 @@ public class FeatureSelector {
 //    }
     
     private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {
-        System.out.println("[" + (new Date().toString()) + "] I'm in function: computeDetAndMeanMatrix");
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: computeDetAndMeanMatrix, step: " + ++stepCounter);
         Matrix meanMatrix = null;
         Matrix diffMatrix = null;
         Matrix sMatrix = null;
@@ -253,29 +267,29 @@ public class FeatureSelector {
     }
     
     private double[] createMeanVector(Matrix currentXMatrix) {
-        double firstRowSum=0, secondRowSum=0, firstRowMean=0, secondRowMean=0;
+        double[] rowSums = new double[selectedDimension];
         double[][] currentXArray = currentXMatrix.getArray();
-        double[] currentMeanVector = new double[2];
+        double[] currentMeanVector = new double[selectedDimension];
         int colDim = currentXMatrix.getColumnDimension();
         
         for (int i=0; i<colDim; i++) {
-            firstRowSum += currentXArray[0][i];
-            secondRowSum += currentXArray[1][i];
+            for (int j = 0; j < selectedDimension; j++) {
+                rowSums[j] += currentXArray[j][i];
+            }
         }
-        firstRowMean = firstRowSum / colDim;
-        secondRowMean = secondRowSum / colDim;
-        for (int i=0; i<colDim; i++) {
-            currentMeanVector[0] = firstRowMean;
-            currentMeanVector[1] = secondRowMean;
+        
+        for (int i = 0; i < selectedDimension; i++) {
+            currentMeanVector[i] = rowSums[i] / colDim;
         }
         return currentMeanVector;
     }
     
     private Matrix createMeanMatrix(double[] meanVector, int colDim) {
-        double[][] meanArray = new double[2][colDim];
+        double[][] meanArray = new double[selectedDimension][colDim];
         for (int i=0; i<colDim; i++) {
-            meanArray[0][i] = meanVector[0];
-            meanArray[1][i] = meanVector[1];
+            for (int j=0; j<selectedDimension; j++) {
+                meanArray[j][i] = meanVector[j];
+            }
         }
         return new Matrix(meanArray);
     }
@@ -288,15 +302,13 @@ public class FeatureSelector {
         return values;
     }
     
-    private int[][] compareAndGetColDimensions(Matrix matrixA, Matrix matrixB) throws Exception {
+    private int[][] compareAndGetColDimensions(Matrix matrixA, Matrix matrixB) {
         int rowDimA = matrixA.getRowDimension();
         int rowDimB = matrixB.getRowDimension();
-        if (rowDimA != rowDimB) {
-            throw new Exception("Row dimensions of Matrix A and Matrix B are different!"
-                    + " MatrixA rows: " + rowDimA + ", MatrixB rows: " + rowDimB);
-        }
+        
         int colDimA = matrixA.getColumnDimension();
         int colDimB = matrixB.getColumnDimension();
+        
         int[] allColumnsIndicesA = new int[colDimA];
         int[] allColumnsIndicesB = new int[colDimB];
         
