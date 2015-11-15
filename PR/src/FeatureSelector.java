@@ -23,50 +23,24 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Piotr
  */
 public class FeatureSelector {
-    boolean isNewClass = true;
-    private String inputData;
     private String inputDataFileName;
-    int featureCount=0;
-    double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
-    int bestFeatureNum1, bestFeatureNum2;
-    double bestFeatureFLD;
-    
-    int[] classLabels, sampleCount;
-    String[] classNames;
-    List<String> NameList = new ArrayList<String>();
-    List<Integer> CountList = new ArrayList<Integer>();
-    List<Integer> LabelList = new ArrayList<Integer>();
+    private int featureCount=0;
+    private double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
+    private int bestFeatureNum1, bestFeatureNum2;
+    private double bestFeatureFLD;
+    private boolean isDataSetRead = false;
+    private boolean isDataSetParsed = false;
+    private boolean isFeatureSpaceDerived = false;
+
     ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
     HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
     ArrayList<Matrix> classMatrixes = new ArrayList<Matrix>();
     
-    public String getInputData() {
-        return this.inputData;
-    }
-    public void setInputData(String input) {
-        this.inputData=input;
-    }
     public String getInputDataFileName() {
         return this.inputDataFileName;
     }
-    private void setInputDataFileName(String filename) {
-        this.inputDataFileName=filename;
-    }
-    // only getters
     public int getFeatureCount() {
         return this.featureCount;
-    }
-    //public int getClassCount() {
-      //  return this.classCount;
-   // }
-    public int[] getClassLabels() {
-        return this.classLabels;
-    }
-    public int[] getSampleCount() {
-        return this.sampleCount;
-    }
-    public String[] getClassNames() {
-        return this.classNames;
     }
     public int getBestFeatureNum1() {
         return this.bestFeatureNum1;
@@ -77,33 +51,34 @@ public class FeatureSelector {
     public double getBestFeatureFLD() {
         return this.bestFeatureFLD;
     }
+    public boolean isDataSetRead() {
+        return this.isDataSetRead;
+    }
 
 
     
     public void readDataSetFromFile() {
+        isDataSetParsed = false;
         System.out.println("[" + (new Date().toString()) + "] I'm in function: readDataSetFromFile");
         String line="";
         double[] values;
-        StringBuilder dataset = new StringBuilder();
 
-        
         JFileChooser fileChooser;
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(".."));
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                                             "Datasets - plain text files", "txt");
         fileChooser.setFileFilter(filter);
+        
         if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()));
-                
                 while((line=reader.readLine())!= null) {
                     String className = line.split(",")[0].split(" ")[0];
                     String classFeatures = line.substring(line.indexOf(",")+1);
                     values = getDoubleValues(classFeatures.split(","));
                     featureCount = values.length;
                     Tuple<String, double[]> tuple = new Tuple<String, double[]>(className, values);
-                    
                     if (objectsCount.size() <= 0) {
                         objectsCount.put(className, 1);
                     }
@@ -117,12 +92,11 @@ public class FeatureSelector {
                         }
                     }
                     features.add(tuple);
-                    dataset.append(line).append('$');
                 }
-                this.inputData=dataset.toString();
                 reader.close();
                 inputDataFileName=fileChooser.getSelectedFile().getName();
-                System.out.println("end of readDataSet. " + objectsCount.toString());
+                System.out.println("End of readDataSet. " + objectsCount.toString());
+                isDataSetRead = true;
             } catch (Exception e) { e.printStackTrace();       }
         }
     }
@@ -149,90 +123,7 @@ public class FeatureSelector {
             Matrix classMatrix = new Matrix(dataRows);
             classMatrixes.add(classMatrix.transpose()); // instances are rows and features are columns - so transposing
             System.out.println("End of createClassMatrixes");
-        }
-    }
-    
-    public void getDatasetParameters() throws Exception{
- 
-        
-        String dataLines=inputData, firstLnSubstr="", className="";
-        firstLnSubstr = inputData.substring(inputData.indexOf(',')+1, inputData.indexOf('$'));
-        
-        if(firstLnSubstr.length()==0) {
-            throw new Exception("The first line is empty");
-        }
-        
-        int featureNum=0;
-        while(firstLnSubstr.indexOf(',') > 0){
-            firstLnSubstr = firstLnSubstr.substring(firstLnSubstr.indexOf(',')+1);            
-            featureNum++;
-        }
-        featureCount = featureNum+1;
-        
-        int classIndex = -1;
-        
-        while(dataLines.length()>1){
-            className = dataLines.substring(0,dataLines.indexOf(' '));
-            //String className2 = dataLines.split(" ", 1)[0];
-            //String classFeatures = dataLines.split(" ", 1)[1];
-            //dataLines = dataLines.substring(dataLines.indexOf('$')+1);
-            //System.out.println(className2);
-            isNewClass = true; 
-            classIndex++; // new class index
-            for(int i=0; i<NameList.size(); i++) 
-                if(className.equals(NameList.get(i))) {
-                    isNewClass=false;
-                    classIndex = i; // class index
-                }
-            if(isNewClass) {
-                NameList.add(className);
-                CountList.add(0); // how many object of a class
-            }
-            else{
-                CountList.set(classIndex, CountList.get(classIndex)+1);
-            }           
-            LabelList.add(classIndex); // which feature row is for which class, e.g. 0,1,1,1,0,1...
-            dataLines = dataLines.substring(dataLines.indexOf('$')+1);
-        }
-        // based on results of the above analysis, create ARRAY variables
-        classNames = new String[NameList.size()];
-        for(int i=0; i<classNames.length; i++) {
-            classNames[i]=NameList.get(i);
-        }
-        
-        sampleCount = new int[CountList.size()];
-        for(int i=0; i<sampleCount.length; i++) {
-            sampleCount[i] = CountList.get(i)+1;
-        }
-        
-        classLabels = new int[LabelList.size()];
-        for(int i=0; i<classLabels.length; i++) {
-            classLabels[i] = LabelList.get(i);
-        }
-    }
-    
-    public void fillFeatureMatrix() throws Exception {
-        int samples = 0;
-        String line, dataLines = inputData;
-        
-        for(int i=0; i<sampleCount.length; i++) {
-            samples += sampleCount[i];
-        }
-        if(samples <= 0) {
-            throw new Exception("No samples found!");
-        }
-        // TODO: separation between feature matrix for A and B
-        featureMatrix = new double[featureCount][samples]; // features-rows, samples-columns (features x samples)
-        for(int cols=0; cols<samples; cols++) {
-            line = dataLines.substring(0,dataLines.indexOf('$'));
-            line = line.substring(dataLines.indexOf(',')+1);
-            
-            for(int rows=0; rows<featureCount-1; rows++) {
-                featureMatrix[rows][cols] = Double.parseDouble(line.substring(0,line.indexOf(',')));
-                line = line.substring(line.indexOf(',')+1);
-            }
-            featureMatrix[featureCount-1][cols] = Double.parseDouble(line);
-            dataLines = dataLines.substring(dataLines.indexOf('$')+1);
+            isDataSetParsed = true;
         }
     }
     
@@ -299,7 +190,8 @@ public class FeatureSelector {
             System.out.println("EXCEPTION!!! " + e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("FLD: " + FLD);
+        System.out.println("Found best FLD: " + FLD);
+        System.out.println("The winners are: " + bestFeatureNum1 + ", " + bestFeatureNum2);
         return FLD;
     }
     
@@ -357,28 +249,23 @@ public class FeatureSelector {
             currentMeanVector[0] = firstRowMean;
             currentMeanVector[1] = secondRowMean;
         }
-        
         return currentMeanVector;
     }
     
     private Matrix createMeanMatrix(double[] meanVector, int colDim) {
         double[][] meanArray = new double[2][colDim];
-        
         for (int i=0; i<colDim; i++) {
             meanArray[0][i] = meanVector[0];
             meanArray[1][i] = meanVector[1];
         }
-        
         return new Matrix(meanArray);
     }
     
     private double[] getDoubleValues(String[] featuresVals) {
         double[] values = new double[featuresVals.length];
-        
         for(int i=0; i<values.length; i++) {
             values[i] = Double.parseDouble(featuresVals[i]);
         }
-        
         return values;
     }
     

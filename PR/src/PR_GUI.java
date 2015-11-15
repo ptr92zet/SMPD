@@ -355,25 +355,17 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_readDatasetButtonActionPerformed
 
     private void parseDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parseDatasetButtonActionPerformed
-        // Analyze text inputted from a file: determine class number and labels and number
-        // of features; build feature matrix: columns - samples, rows - features
-        System.out.println("Creating classMatrixes");
-        selector.createClassMatrixes();
-        try {
-            if(selector.getInputData()!=null) {
-               
-                featuresNumberField.setText(selector.getFeatureCount()+"");
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,ex.getMessage());
+        if (selector.isDataSetRead()) {
+            selector.createClassMatrixes();
+            featuresNumberField.setText(selector.getFeatureCount()+"");
         }
-        
+        else {
+            JOptionPane.showMessageDialog(null, "You need to read data set first!");
+        }
     }//GEN-LAST:event_parseDatasetButtonActionPerformed
 
     private void deriveFeatureSpaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deriveFeatureSpaceButtonActionPerformed
-        //if(selector.featureMatrix==null) return;
         if(featureSelectionRadio.isSelected()){
-           // selector.selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
             selector.selectFeatures(selector.getFeatureCount());
             fldWinnerField.setText(selector.getBestFeatureNum1()+", "+selector.getBestFeatureNum2());
             fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
@@ -395,7 +387,6 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_deriveFeatureSpaceButtonActionPerformed
 
     private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
-        
         // first step: split dataset (in new feature space) into training / testing parts
         if(FNew==null) return; // no reduced feature space have been derived
         Classifier Cl = new Classifier();
