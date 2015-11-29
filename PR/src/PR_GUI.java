@@ -2,6 +2,7 @@
 
 import javax.swing.*;
 import Jama.*;
+import java.util.Arrays;
 
 /*
  * To change this template, choose Tools | Templates
@@ -375,7 +376,7 @@ public class PR_GUI extends javax.swing.JFrame {
         if(featureSelectionRadio.isSelected()){
             if (selector.isDataSetParsed()) {
                 selector.selectFeatures(selector.getSelectedDimension());
-                fldWinnerField.setText(selector.getBestFeatureNum1()+", "+selector.getBestFeatureNum2());
+                fldWinnerField.setText(Arrays.toString(selector.getFeatureWinnersFLD()));
                 fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
             }
             else {
