@@ -492,22 +492,6 @@ public class PR_GUI extends javax.swing.JFrame {
             }
             PM = evecs.getMatrix(0, evecs.getRowDimension()-1,m+1,evecs.getColumnDimension()-1);
         }
-
-/*            System.out.println("Eigenvectors");                
-            for(int i=0; i<r; i++){
-                for(int j=0; j<c; j++){
-                    System.out.print(evecs[i][j]+" ");
-                }
-                System.out.println();                
-            }
-            System.out.println("Eigenvalues");                
-            for(int i=0; i<r; i++){
-                for(int j=0; j<c; j++){
-                    System.out.print(evals[i][j]+" ");
-                }
-                System.out.println();                
-            }
-*/
         
         return PM;
     }
@@ -582,9 +566,6 @@ class Classifier {
 }
 
 class NNClassifier extends Classifier {
-    
-    
-    
     @Override
     protected void trainClissifier(double[][] TrainSet){
     

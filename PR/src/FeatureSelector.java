@@ -144,16 +144,6 @@ public class FeatureSelector {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: selectFeatures");
         System.out.println("COMPUTATION START TIME: " + new Date().toString());
         if (selectedDimension == 1) {
-//            double FLD=0, tmp;
-//            int max_ind=-1;        
-//            for(int i=0; i<featureCount; i++){
-//                if((tmp=computeFLD(featureMatrix[i]))>FLD){
-//                    FLD=tmp;
-//                    max_ind = i;
-//                }
-//            }
-//            bestFeatureNum1=max_ind;
-//            bestFeatureFLD=FLD;
             try {
                 findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
             } catch (Exception e) {
@@ -190,36 +180,6 @@ public class FeatureSelector {
                  featureMatrixRowIndexes[0] < featureMatrixRowDim - 1;
                  featureMatrixRowIndexes[0]++) {
                 goThroughEachFeature(0);
-                
-//            for (currRowIndex=0; currRowIndex<rowDim-1; currRowIndex++) {
-//                for (nextRowIndex=currRowIndex+1; nextRowIndex<rowDim; nextRowIndex++) {
-//                    for (nextNextRowIndex = nextRowIndex+1; nextNextRowIndex < rowDim; nextNextRowIndex++) {
-//                        rowIndices[0] = currRowIndex;
-//                        rowIndices[1] = nextRowIndex;
-//                        rowIndices[2] = nextNextRowIndex;
-//                        
-//                        currentXMatrixA = matrixA.getMatrix(rowIndices, colIndices[0]);
-//                        currentXMatrixB = matrixB.getMatrix(rowIndices, colIndices[1]);
-//                        
-//                        tupleA = computeDetAndMeanMatrix(currentXMatrixA);
-//                        tupleB = computeDetAndMeanMatrix(currentXMatrixB);
-//                        
-//                        double[] meanVectorA = tupleA.getValue();
-//                        double[] meanVectorB = tupleB.getValue();
-//                        
-//                        double diffA = meanVectorA[0] - meanVectorB[0];
-//                        double diffB = meanVectorA[1] - meanVectorB[1];
-//                        double diffC = meanVectorA[2] - meanVectorB[2];
-//                        
-//                        tmp = Math.sqrt((diffA * diffA) + (diffB * diffB) + (diffC * diffC)) / (tupleA.getKey() + tupleB.getKey());
-//                        if (tmp > FLD) {
-//                            FLD = tmp;
-//                            bestFeatureNum1 = currRowIndex;
-//                            bestFeatureNum2 = nextRowIndex;
-//                            bestFeatureNum3 = nextNextRowIndex;
-//                        }
-//                    }
-//                }
             }
         } catch (Exception e){
             System.out.println("EXCEPTION!!! " + e.getMessage());
@@ -272,29 +232,6 @@ public class FeatureSelector {
             }
         }
     }
-    
-//    private double computeFLD(double[] vec) {
-//        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes - 1D, 2 classes");
-//        // 1D, 2-classes
-//        double FLD=-1;
-//        double mA=0, mB=0, sA=0, sB=0;
-//        for(int i=0; i<vec.length; i++){
-//            if(classLabels[i]==0) {
-//                mA += vec[i];
-//                sA += vec[i]*vec[i];
-//            }
-//            else {
-//                mB += vec[i];
-//                sB += vec[i]*vec[i];
-//            }
-//        }
-//        mA /= sampleCount[0];
-//        mB /= sampleCount[1];
-//        sA = sA/sampleCount[0] - mA*mA;
-//        sB = sB/sampleCount[1] - mB*mB;
-//        FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
-//        return FLD;
-//    }
     
     private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: computeDetAndMeanMatrix, step: " + ++stepCounter);
