@@ -143,24 +143,10 @@ public class FeatureSelector {
         stepCounter = 0;
         System.out.println("[" + (new Date().toString()) + "] I'm in function: selectFeatures");
         System.out.println("COMPUTATION START TIME: " + new Date().toString());
-        if (selectedDimension == 1) {
-            try {
-                findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (selectedDimension == 2) {
-            try {
-                findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         stopTime = System.nanoTime() - startTime;
         System.out.println("COMPUTATION STOP TIME: " + new Date().toString());
@@ -179,7 +165,7 @@ public class FeatureSelector {
             for (featureMatrixRowIndexes[0] = 0;
                  featureMatrixRowIndexes[0] < featureMatrixRowDim - 1;
                  featureMatrixRowIndexes[0]++) {
-                goThroughEachFeature(0);
+                goThroughEachFeature();
             }
         } catch (Exception e){
             System.out.println("EXCEPTION!!! " + e.getMessage());
@@ -187,8 +173,11 @@ public class FeatureSelector {
         }
         System.out.println("Found best FLD: " + bestFeatureFLD);
         System.out.println("The winners are: " + Arrays.toString(featureWinnersFLD));
-    }
     
+    }
+    private void goThroughEachFeature() {
+        goThroughEachFeature(0);
+    }
     private void goThroughEachFeature(int depth) {
         int indexForSelectedDimension = selectedDimension - 1;
         if (depth != indexForSelectedDimension) {
@@ -231,6 +220,99 @@ public class FeatureSelector {
                 featureWinnersFLD = featureMatrixRowIndexes.clone();
             }
         }
+    }
+    
+    private void goThroughChosenFeature(int[] chosenFeatures) {
+        featureMatrixRowIndexes = new int[selectedDimension];
+        featureMatrixRowDim = classMatrixes.get(0).getRowDimension();
+        featureMatrixColIndexes = compareAndGetColDimensions(classMatrixes.get(0), classMatrixes.get(1));
+        bestFeatureFLD = 0;
+        for (int i = 0; i < chosenFeatures.length; i++) {
+            featureMatrixRowIndexes[i] = chosenFeatures[i];
+        }
+        
+        int lastRowIndex = featureMatrixRowIndexes.length - 1;
+        for (featureMatrixRowIndexes[lastRowIndex] = 0;
+             featureMatrixRowIndexes[lastRowIndex] < featureMatrixRowDim;
+             featureMatrixRowIndexes[lastRowIndex]++) {
+            
+            boolean omitFeature = false;
+            for (int feature : chosenFeatures) {
+                if (featureMatrixRowIndexes[lastRowIndex] == feature) {
+                    omitFeature = true;
+                }
+            }
+            
+            if (omitFeature) {
+                continue;
+            }
+            
+            Matrix matrixA = classMatrixes.get(0);
+            Matrix matrixB = classMatrixes.get(1);
+
+            Matrix currentXMatrixA = matrixA.getMatrix(featureMatrixRowIndexes, featureMatrixColIndexes[0]);
+            Matrix currentXMatrixB = matrixB.getMatrix(featureMatrixRowIndexes, featureMatrixColIndexes[1]);
+
+            Tuple<Double, double[]> tupleA = computeDetAndMeanMatrix(currentXMatrixA);
+            Tuple<Double, double[]> tupleB = computeDetAndMeanMatrix(currentXMatrixB);
+
+            double[] meanVectorA = tupleA.getValue();
+            double[] meanVectorB = tupleB.getValue();
+            double[] diffArray = new double[selectedDimension];
+
+            for (int i = 0; i < selectedDimension; i++) {
+                diffArray[i] = meanVectorA[i] - meanVectorB[i];
+                diffArray[i] = diffArray[i] * diffArray[i];
+            }
+
+            double sumOfSquaresOfDiffs = 0;
+            for (double diff : diffArray) {
+                sumOfSquaresOfDiffs += diff;
+            }
+
+            double tmp = Math.sqrt(sumOfSquaresOfDiffs) / (tupleA.getKey() + tupleB.getKey());
+            if (tmp > bestFeatureFLD) {
+                bestFeatureFLD = tmp;
+                featureWinnersFLD = featureMatrixRowIndexes.clone();
+            }
+        }
+    }
+    
+    public void useSfs() {
+        FeatureSelector sfsSelector = new FeatureSelector();
+        sfsSelector.setSelectedDimension(1);
+        sfsSelector.readDataSetFromFile();
+        sfsSelector.createClassMatrixes();
+        sfsSelector.selectFeatures(1);
+        int[] chosenFeatures = sfsSelector.getFeatureWinnersFLD();
+        System.out.println(Arrays.toString(chosenFeatures));
+        
+        sfsSelector = new FeatureSelector();
+        sfsSelector.setSelectedDimension(2);
+        sfsSelector.readDataSetFromFile();
+        sfsSelector.createClassMatrixes();
+        sfsSelector.goThroughChosenFeature(chosenFeatures);
+        int[] chosenFeatures2 = sfsSelector.getFeatureWinnersFLD();
+        System.out.println(Arrays.toString(chosenFeatures2));
+        
+        sfsSelector = new FeatureSelector();
+        sfsSelector.setSelectedDimension(3);
+        sfsSelector.readDataSetFromFile();
+        sfsSelector.createClassMatrixes();
+        sfsSelector.goThroughChosenFeature(chosenFeatures2);
+        int [] chosenFeatures3 = sfsSelector.getFeatureWinnersFLD();
+        System.out.println(Arrays.toString(chosenFeatures3));
+//        sfsSelector.setSelectedDimension(2);
+//        sfsSelector.createClassMatrixes();
+//        sfsSelector.goThroughChosenFeature(chosenFeatures);
+//        chosenFeatures = sfsSelector.getFeatureWinnersFLD();
+//        sfsSelector.setSelectedDimension(3);
+//        sfsSelector.createClassMatrixes();
+//        sfsSelector.goThroughChosenFeature(chosenFeatures);
+//        chosenFeatures = sfsSelector.getFeatureWinnersFLD();
+        
+        System.out.println(Arrays.toString(chosenFeatures));
+        
     }
     
     private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {

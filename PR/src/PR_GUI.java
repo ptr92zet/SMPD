@@ -378,6 +378,8 @@ public class PR_GUI extends javax.swing.JFrame {
                 selector.selectFeatures(selector.getSelectedDimension());
                 fldWinnerField.setText(Arrays.toString(selector.getFeatureWinnersFLD()));
                 fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
+                
+                //selector.useSfs();
             }
             else {
                 JOptionPane.showMessageDialog(null, "You need to parse data set first!");
