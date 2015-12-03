@@ -375,11 +375,9 @@ public class PR_GUI extends javax.swing.JFrame {
     private void deriveFeatureSpaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deriveFeatureSpaceButtonActionPerformed
         if(featureSelectionRadio.isSelected()){
             if (selector.isDataSetParsed()) {
-//                selector.selectFeatures();
-//                fldWinnerField.setText(Arrays.toString(selector.getFeatureWinnersFLD()));
-//                fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
-                
-                selector.useSfs();
+                selector.selectFeatures();
+                fldWinnerField.setText(Arrays.toString(selector.getFeatureWinnersFLD()));
+                fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
             }
             else {
                 JOptionPane.showMessageDialog(null, "You need to parse data set first!");
