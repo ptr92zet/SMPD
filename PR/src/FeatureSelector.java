@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -21,297 +23,256 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Piotr
  */
 public class FeatureSelector {
-    
-    boolean isNewClass = true;
-    private String inputData;
     private String inputDataFileName;
-    int featureCount=0;
-    double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
-    int bestFeatureNum;
-    double bestFeatureFLD;
+    private int featureCount=0;
+    //private double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
+    private double bestFeatureFLD;
+    private int[] featureWinnersFLD;
+    private boolean isDataSetRead = false;
+    private boolean isDataSetParsed = false;
+    private boolean isFeatureSpaceDerived = false;
+    private int selectedDimension;
+    private int[] featureMatrixRowIndexes;
+    private int featureMatrixRowDim;
+    private int[][] featureMatrixColIndexes;
+    private long startTime, stopTime;
+    private long stepCounter = 0;
     
-    int[] classLabels, sampleCount;
-    String[] classNames;
-    List<String> NameList = new ArrayList<String>();
-    List<Integer> CountList = new ArrayList<Integer>();
-    List<Integer> LabelList = new ArrayList<Integer>();
     ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
+    HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
+    ArrayList<Matrix> classMatrixes = new ArrayList<Matrix>();
     
-    public String getInputData() {
-        return this.inputData;
-    }
-    public void setInputData(String input) {
-        this.inputData=input;
-    }
     public String getInputDataFileName() {
         return this.inputDataFileName;
     }
-    public void setInputDataFileName(String filename) {
-        this.inputDataFileName=filename;
-    }
-    // only getters
     public int getFeatureCount() {
         return this.featureCount;
     }
-    //public int getClassCount() {
-      //  return this.classCount;
-   // }
-    public int[] getClassLabels() {
-        return this.classLabels;
-    }
-    public int[] getSampleCount() {
-        return this.sampleCount;
-    }
-    public String[] getClassNames() {
-        return this.classNames;
-    }
-    public int getBestFeatureNum() {
-        return this.bestFeatureNum;
+    public int[] getFeatureWinnersFLD() {
+        return this.featureWinnersFLD;
     }
     public double getBestFeatureFLD() {
         return this.bestFeatureFLD;
     }
-
+    public boolean isDataSetRead() {
+        return this.isDataSetRead;
+    }
+    public boolean isDataSetParsed() {
+        return this.isDataSetParsed;
+    }
+    public void setSelectedDimension(int dimension) {
+        this.selectedDimension = dimension;
+    }
+    public int getSelectedDimension() {
+        return this.selectedDimension;
+    }
 
     
     public void readDataSetFromFile() {
+        isDataSetParsed = false;
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: readDataSetFromFile");
         String line="";
         double[] values;
-       // boolean isNewClass = true;
-        StringBuilder dataset = new StringBuilder();
-        List<Matrix> classMatrixes = new ArrayList<Matrix>();
-        
+
         JFileChooser fileChooser;
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(".."));
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                                             "Datasets - plain text files", "txt");
         fileChooser.setFileFilter(filter);
+        
         if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()));
-                
                 while((line=reader.readLine())!= null) {
                     String className = line.split(",")[0].split(" ")[0];
-                    if (isNewClass == true) {
-                        NameList.add(className);
-                    }
-                    
                     String classFeatures = line.substring(line.indexOf(",")+1);
                     values = getDoubleValues(classFeatures.split(","));
+                    featureCount = values.length;
                     Tuple<String, double[]> tuple = new Tuple<String, double[]>(className, values);
+                    if (objectsCount.size() <= 0) {
+                        objectsCount.put(className, 1);
+                    }
+                    else {
+                        if (objectsCount.containsKey(className)) {
+                            int countForClass = objectsCount.get(className)+1;
+                            objectsCount.put(className, countForClass);
+                        }
+                        else {
+                            objectsCount.put(className, 1);
+                        }
+                    }
                     features.add(tuple);
-//                    for (String name : NameList) {
-//                        if (className.equals(name)) {
-//                            isNewClass = false;
-//                        } else {
-//                            isNewClass = true;
-//                            NameList.add(className);
-//                            featuresValuesString = classFeatures.split(",");
-//                            for(String value: featuresValuesString) {
-//                                featuresValues.add(Double.parseDouble(value));
-//
-//                            }
-//                            classMatrixes.add(new Matrix((double[][])featuresValues.toArray()));
-//                        }
-//                    }
-                    System.out.println("CLASS: " + tuple.getKey() + " | FEATURES: " + Arrays.toString(tuple.getValue()));
-                    
-                    dataset.append(line).append('$');
                 }
-                this.inputData=dataset.toString();
                 reader.close();
-        //        datasetFilenameField.setText(fileChooser.getSelectedFile().getName());
                 inputDataFileName=fileChooser.getSelectedFile().getName();
-            } catch (Exception e) {        }
+                System.out.println("End of readDataSet. " + objectsCount.toString());
+                isDataSetRead = true;
+            } catch (Exception e) { e.printStackTrace();       }
         }
     }
-    
-    public void getDatasetParameters() throws Exception{
-        Iterator it = features.iterator();
-        while(it.hasNext()) {
-            Tuple tuple = (Tuple)it.next();
-            String className = (String)tuple.getKey();
-            for (String name : NameList) {
-                if (className.equals(name)) {
-                    isNewClass = false;
-                } else {
-                    isNewClass = true;
-                    NameList.add(className);
-                }                        
-            }
-        }
-        
-        String dataLines=inputData, firstLnSubstr="", className="";
-        firstLnSubstr = inputData.substring(inputData.indexOf(',')+1, inputData.indexOf('$'));
-        
-        if(firstLnSubstr.length()==0) {
-            throw new Exception("The first line is empty");
-        }
-        
-        int featureNum=0;
-        while(firstLnSubstr.indexOf(',') > 0){
-            firstLnSubstr = firstLnSubstr.substring(firstLnSubstr.indexOf(',')+1);            
-            featureNum++;
-        }
-        featureCount = featureNum+1;
-        
-        boolean isNewClass;
-        int classIndex = -1;
-        
-        while(dataLines.length()>1){
-            className = dataLines.substring(0,dataLines.indexOf(' '));
-            //String className2 = dataLines.split(" ", 1)[0];
-            //String classFeatures = dataLines.split(" ", 1)[1];
-            //dataLines = dataLines.substring(dataLines.indexOf('$')+1);
-            //System.out.println(className2);
-            isNewClass = true; 
-            classIndex++; // new class index
-            for(int i=0; i<NameList.size(); i++) 
-                if(className.equals(NameList.get(i))) {
-                    isNewClass=false;
-                    classIndex = i; // class index
-                }
-            if(isNewClass) {
-                NameList.add(className);
-                CountList.add(0); // how many object of a class
-            }
-            else{
-                CountList.set(classIndex, CountList.get(classIndex)+1);
-            }           
-            LabelList.add(classIndex); // which feature row is for which class, e.g. 0,1,1,1,0,1...
-            dataLines = dataLines.substring(dataLines.indexOf('$')+1);
-        }
-        // based on results of the above analysis, create ARRAY variables
-        classNames = new String[NameList.size()];
-        for(int i=0; i<classNames.length; i++) {
-            classNames[i]=NameList.get(i);
-        }
-        
-        sampleCount = new int[CountList.size()];
-        for(int i=0; i<sampleCount.length; i++) {
-            sampleCount[i] = CountList.get(i)+1;
-        }
-        
-        classLabels = new int[LabelList.size()];
-        for(int i=0; i<classLabels.length; i++) {
-            classLabels[i] = LabelList.get(i);
-        }
-    }
-    
-    public void fillFeatureMatrix() throws Exception {
-        int samples = 0;
-        String line, dataLines = inputData;
-        
-        for(int i=0; i<sampleCount.length; i++) {
-            samples += sampleCount[i];
-        }
-        if(samples <= 0) {
-            throw new Exception("No samples found!");
-        }
-        // TODO: separation between feature matrix for A and B
-        featureMatrix = new double[featureCount][samples]; // features-rows, samples-columns (features x samples)
-        for(int cols=0; cols<samples; cols++) {
-            line = dataLines.substring(0,dataLines.indexOf('$'));
-            line = line.substring(dataLines.indexOf(',')+1);
-            
-            for(int rows=0; rows<featureCount-1; rows++) {
-                featureMatrix[rows][cols] = Double.parseDouble(line.substring(0,line.indexOf(',')));
-                line = line.substring(line.indexOf(',')+1);
-            }
-            featureMatrix[featureCount-1][cols] = Double.parseDouble(line);
-            dataLines = dataLines.substring(dataLines.indexOf('$')+1);
-        }
-    }
-    
-    public void selectFeatures(int[] flags, int d) {
-        // for now: check all individual features using 1D, 2-class Fisher criterion
 
-        if(d==1){
-            double FLD=0, tmp;
-            int max_ind=-1;        
-            for(int i=0; i<featureCount; i++){
-                if((tmp=computeFLD(featureMatrix[i]))>FLD){
-                    FLD=tmp;
-                    max_ind = i;
-                }
+    public void createClassMatrixes() {
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: createClassMatrixes");
+        
+        Iterator setIterator = objectsCount.keySet().iterator();
+        while (setIterator.hasNext()) {
+            String className = (String)setIterator.next();
+            int noOfInstances = objectsCount.get(className);
+            double[][] dataRows = new double[noOfInstances][];
+            int i=0;
+            Iterator it = features.iterator();
+            while(it.hasNext() && i < noOfInstances) {
+                Tuple tuple = (Tuple)it.next();
+                String classNameFromEntry = (String)tuple.getKey();
+                if (classNameFromEntry.equals(className)) {
+                    double[] row = (double[])tuple.getValue();
+                    dataRows[i] = row;
+                    i++;
+                }                
             }
-            bestFeatureNum=max_ind;
-            bestFeatureFLD=FLD;
+            Matrix classMatrix = new Matrix(dataRows);
+            classMatrixes.add(classMatrix.transpose()); // instances are rows and features are columns - so transposing
+            System.out.println("End of createClassMatrixes");
+            isDataSetParsed = true;
         }
-        // TODO: compute for higher dimensional spaces, use e.g. SFS for candidate selection
     }
     
-    private double computeFLD(double[] vec) {
-        // 1D, 2-classes
-        double FLD=-1;
-        double mA=0, mB=0, sA=0, sB=0;
-        for(int i=0; i<vec.length; i++){
-            if(classLabels[i]==0) {
-                mA += vec[i];
-                sA += vec[i]*vec[i];
+    public void selectFeatures(int featureSpaceCount) {
+        startTime = System.nanoTime();
+        stepCounter = 0;
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: selectFeatures");
+        System.out.println("COMPUTATION START TIME: " + new Date().toString());
+        if (selectedDimension == 1) {
+            try {
+                findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            else {
-                mB += vec[i];
-                sB += vec[i]*vec[i];
+        } else if (selectedDimension == 2) {
+            try {
+                findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                findBestFLD(classMatrixes.get(0), classMatrixes.get(1));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        mA /= sampleCount[0];
-        mB /= sampleCount[1];
-        sA = sA/sampleCount[0] - mA*mA;
-        sB = sB/sampleCount[1] - mB*mB;
-        FLD = Math.abs(mA-mB)/(Math.sqrt(sA)+Math.sqrt(sB));
-        return FLD;
+        stopTime = System.nanoTime() - startTime;
+        System.out.println("COMPUTATION STOP TIME: " + new Date().toString());
+        System.out.println("ELAPSED TIME: " + (stopTime/1000000000.0) + " s");
     }
-    private double computeFLD(Matrix featuresMatrix) {
-        // nD, 2-classes
+    
+    public void findBestFLD(Matrix matrixA, Matrix matrixB) throws Exception{
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: findBestFLD");
+
+        featureMatrixRowIndexes = new int[selectedDimension];
+        featureMatrixRowDim = matrixA.getRowDimension();
+        featureMatrixColIndexes = compareAndGetColDimensions(matrixA, matrixB);
+        bestFeatureFLD = 0;
+        
+        try {
+            for (featureMatrixRowIndexes[0] = 0;
+                 featureMatrixRowIndexes[0] < featureMatrixRowDim - 1;
+                 featureMatrixRowIndexes[0]++) {
+                goThroughEachFeature(0);
+            }
+        } catch (Exception e){
+            System.out.println("EXCEPTION!!! " + e.getMessage());
+            e.printStackTrace();
+        }
+        System.out.println("Found best FLD: " + bestFeatureFLD);
+        System.out.println("The winners are: " + Arrays.toString(featureWinnersFLD));
+    }
+    
+    private void goThroughEachFeature(int depth) {
+        int indexForSelectedDimension = selectedDimension - 1;
+        if (depth != indexForSelectedDimension) {
+            int nextRowIndex = depth + 1;
+            for (featureMatrixRowIndexes[nextRowIndex] = featureMatrixRowIndexes[depth] + 1;
+                 featureMatrixRowIndexes[nextRowIndex] < featureMatrixRowDim;
+                 featureMatrixRowIndexes[nextRowIndex]++) {
+                
+                goThroughEachFeature(depth + 1);
+            }
+        }
+        
+        else {
+            Matrix matrixA = classMatrixes.get(0);
+            Matrix matrixB = classMatrixes.get(1);
+            
+            Matrix currentXMatrixA = matrixA.getMatrix(featureMatrixRowIndexes, featureMatrixColIndexes[0]);
+            Matrix currentXMatrixB = matrixB.getMatrix(featureMatrixRowIndexes, featureMatrixColIndexes[1]);
+
+            Tuple<Double, double[]> tupleA = computeDetAndMeanMatrix(currentXMatrixA);
+            Tuple<Double, double[]> tupleB = computeDetAndMeanMatrix(currentXMatrixB);
+
+            double[] meanVectorA = tupleA.getValue();
+            double[] meanVectorB = tupleB.getValue();
+            double[] diffArray = new double[selectedDimension];
+            
+            for (int i = 0; i < selectedDimension; i++) {
+                diffArray[i] = meanVectorA[i] - meanVectorB[i];
+                diffArray[i] = diffArray[i] * diffArray[i];
+            }
+            
+            double sumOfSquaresOfDiffs = 0;
+            for (double diff : diffArray) {
+                sumOfSquaresOfDiffs += diff;
+            }
+            
+            double tmp = Math.sqrt(sumOfSquaresOfDiffs) / (tupleA.getKey() + tupleB.getKey());
+            if (tmp > bestFeatureFLD) {
+                bestFeatureFLD = tmp;
+                featureWinnersFLD = featureMatrixRowIndexes.clone();
+            }
+        }
+    }
+    
+    private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {
+        System.out.println("[" + (new Date().toString()) + "] I'm in function: computeDetAndMeanMatrix, step: " + ++stepCounter);
         Matrix meanMatrix = null;
         Matrix diffMatrix = null;
         Matrix sMatrix = null;
-        Matrix currentXMatrix = null;
-        double FLD=-1;
-        int currentRow, nextRow;
-        int rowDim = featuresMatrix.getRowDimension();
-        int colDim = featuresMatrix.getColumnDimension();
-        int[] allColumnsIndices = new int[colDim];
-        for (int i=0; i<colDim; i++) {
-            allColumnsIndices[i] = i;
-        }
-        
-        for (currentRow=0; currentRow<rowDim-1; currentRow++) {
-            for (nextRow=currentRow+1; nextRow<rowDim; nextRow++) {
-                currentXMatrix = featuresMatrix.getMatrix(currentRow, nextRow, allColumnsIndices);
-                meanMatrix = createMeanMatrix(createMeanVector(currentXMatrix), colDim);
-                diffMatrix = currentXMatrix.minus(meanMatrix);
-                sMatrix = diffMatrix.times(diffMatrix.transpose());
-                //System.out.println("Rows:");
-                //twoRowsMatrix.print(4,3);
-                //System.out.println("\n\n");
-                
-            }
-        }
+        double[] meanVector;
 
-        return FLD;
+        meanVector = createMeanVector(currentXMatrix);
+        meanMatrix = createMeanMatrix(meanVector, currentXMatrix.getColumnDimension());
+        diffMatrix = currentXMatrix.minus(meanMatrix);
+        sMatrix = diffMatrix.times(diffMatrix.transpose());
+        Tuple<Double, double[]> tuple = new Tuple<Double, double[]>(sMatrix.det(), meanVector);
+        
+        return tuple;
     }
     
-    private double[][] createMeanVector(Matrix x) {
-        double firstRowSum=0, secondRowSum=0;
-        double[][] currentXArray = x.getArray();
-        double[][] currentMeanVector = null;
-        int colDim = x.getColumnDimension();
+    private double[] createMeanVector(Matrix currentXMatrix) {
+        double[] rowSums = new double[selectedDimension];
+        double[][] currentXArray = currentXMatrix.getArray();
+        double[] currentMeanVector = new double[selectedDimension];
+        int colDim = currentXMatrix.getColumnDimension();
+        
         for (int i=0; i<colDim; i++) {
-            firstRowSum += currentXArray[0][i];
-            secondRowSum += currentXArray[1][i];
-            currentMeanVector[0][0] = firstRowSum / colDim;
-            currentMeanVector[1][0] = secondRowSum / colDim;
+            for (int j = 0; j < selectedDimension; j++) {
+                rowSums[j] += currentXArray[j][i];
+            }
+        }
+        
+        for (int i = 0; i < selectedDimension; i++) {
+            currentMeanVector[i] = rowSums[i] / colDim;
         }
         return currentMeanVector;
     }
-    private Matrix createMeanMatrix(double[][] meanVector, int colDim) {
-        double[][] meanArray = new double[2][colDim];
+    
+    private Matrix createMeanMatrix(double[] meanVector, int colDim) {
+        double[][] meanArray = new double[selectedDimension][colDim];
         for (int i=0; i<colDim; i++) {
-            meanArray[0][i] = meanVector[0][1];
-            meanArray[1][i] = meanVector[1][1];
+            for (int j=0; j<selectedDimension; j++) {
+                meanArray[j][i] = meanVector[j];
+            }
         }
         return new Matrix(meanArray);
     }
@@ -322,5 +283,25 @@ public class FeatureSelector {
             values[i] = Double.parseDouble(featuresVals[i]);
         }
         return values;
+    }
+    
+    private int[][] compareAndGetColDimensions(Matrix matrixA, Matrix matrixB) {
+        int colDimA = matrixA.getColumnDimension();
+        int colDimB = matrixB.getColumnDimension();
+        
+        int[] allColumnsIndicesA = new int[colDimA];
+        int[] allColumnsIndicesB = new int[colDimB];
+        
+        for (int i=0; i<colDimA; i++) {
+            allColumnsIndicesA[i] = i;
+        }
+        for (int i=0; i<colDimB; i++) {
+            allColumnsIndicesB[i] = i;
+        }
+        int[][] colDimensions = new int[2][1];
+        colDimensions[0] = allColumnsIndicesA;
+        colDimensions[1] = allColumnsIndicesB;
+        
+        return colDimensions;
     }
 }

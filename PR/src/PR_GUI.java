@@ -1,11 +1,8 @@
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import Jama.*;
+import java.util.Arrays;
 
 /*
  * To change this template, choose Tools | Templates
@@ -25,17 +22,19 @@ import Jama.*;
 public class PR_GUI extends javax.swing.JFrame {
 
     FeatureSelector selector;
-//    String InputDataFromFile; // dataset from a text file will be placed here
- //   int ClassCount=0, FeatureCount=0;
     double[][] F, FNew; // original feature matrix and transformed feature matrix
- //   int[] ClassLabels, SampleCount;
-  //  String[] ClassNames;
+    
 
     /** Creates new form PR_GUI */
     public PR_GUI() {
         initComponents();
         setSize(720,410);
         selector = new FeatureSelector();
+        selector.setSelectedDimension(Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
+        System.out.println("dim: " + selector.getSelectedDimension());
+        for (int i=0; i<64; i++) {
+            selectedFeatureSpaceNum.addItem(Integer.toString(i+1));
+        }
     }
 
     /** This method is called from within the constructor to
@@ -90,6 +89,7 @@ public class PR_GUI extends javax.swing.JFrame {
         fldWinnerValueField = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(800, 500));
         getContentPane().setLayout(null);
 
         readDatasetButton.setText("Read dataset");
@@ -181,9 +181,13 @@ public class PR_GUI extends javax.swing.JFrame {
         featureSpaceDimLabel.setBounds(178, 9, 63, 14);
 
         selectedFeatureSpaceNum.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1" }));
-        selectedFeatureSpaceNum.setEnabled(false);
+        selectedFeatureSpaceNum.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                selectedFeatureSpaceNumItemStateChanged(evt);
+            }
+        });
         featureSpacePanel.add(selectedFeatureSpaceNum);
-        selectedFeatureSpaceNum.setBounds(268, 6, 31, 20);
+        selectedFeatureSpaceNum.setBounds(249, 6, 60, 20);
         featureSpacePanel.add(fsSeparator);
         fsSeparator.setBounds(14, 41, 290, 10);
 
@@ -271,7 +275,7 @@ public class PR_GUI extends javax.swing.JFrame {
         );
 
         getContentPane().add(bigResultsPanel);
-        bigResultsPanel.setBounds(530, 10, 160, 130);
+        bigResultsPanel.setBounds(590, 10, 160, 130);
 
         classifierPanel.setBackground(new java.awt.Color(204, 255, 204));
         classifierPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -316,7 +320,7 @@ public class PR_GUI extends javax.swing.JFrame {
         percentLabel2.setBounds(140, 170, 20, 14);
 
         getContentPane().add(classifierPanel);
-        classifierPanel.setBounds(340, 150, 350, 210);
+        classifierPanel.setBounds(340, 150, 410, 210);
 
         resultsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Results"));
         resultsPanel.setLayout(null);
@@ -327,7 +331,7 @@ public class PR_GUI extends javax.swing.JFrame {
 
         fldWinnerField.setText("xxx");
         resultsPanel.add(fldWinnerField);
-        fldWinnerField.setBounds(100, 30, 18, 14);
+        fldWinnerField.setBounds(100, 30, 70, 14);
 
         fldValueLabel.setText("FLD value: ");
         resultsPanel.add(fldValueLabel);
@@ -335,10 +339,10 @@ public class PR_GUI extends javax.swing.JFrame {
 
         fldWinnerValueField.setText("vvv");
         resultsPanel.add(fldWinnerValueField);
-        fldWinnerValueField.setBounds(100, 60, 48, 14);
+        fldWinnerValueField.setBounds(100, 60, 80, 14);
 
         getContentPane().add(resultsPanel);
-        resultsPanel.setBounds(340, 10, 160, 130);
+        resultsPanel.setBounds(340, 10, 230, 130);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -354,33 +358,30 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_featureExtractionRadioActionPerformed
 
     private void readDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readDatasetButtonActionPerformed
-        // reads in a text file; contents is placed into a variable of String type
         selector.readDataSetFromFile();
         datasetFilenameField.setText(selector.getInputDataFileName());
     }//GEN-LAST:event_readDatasetButtonActionPerformed
 
     private void parseDatasetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parseDatasetButtonActionPerformed
-        // Analyze text inputted from a file: determine class number and labels and number
-        // of features; build feature matrix: columns - samples, rows - features
-        try {
-            if(selector.getInputData()!=null) {
-                selector.getDatasetParameters();
-                featuresNumberField.setText(selector.getFeatureCount()+"");
-                selector.fillFeatureMatrix();
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,ex.getMessage());
+        if (selector.isDataSetRead()) {
+            selector.createClassMatrixes();
+            featuresNumberField.setText(selector.getFeatureCount()+"");
         }
-        
+        else {
+            JOptionPane.showMessageDialog(null, "You need to read data set first!");
+        }
     }//GEN-LAST:event_parseDatasetButtonActionPerformed
 
     private void deriveFeatureSpaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deriveFeatureSpaceButtonActionPerformed
-        if(selector.featureMatrix==null) return;
         if(featureSelectionRadio.isSelected()){
-            int[] flags = new int[selector.getFeatureCount()];
-            selector.selectFeatures(flags,Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
-            fldWinnerField.setText(selector.getBestFeatureNum()+"");
-            fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
+            if (selector.isDataSetParsed()) {
+                selector.selectFeatures(selector.getSelectedDimension());
+                fldWinnerField.setText(Arrays.toString(selector.getFeatureWinnersFLD()));
+                fldWinnerValueField.setText(selector.getBestFeatureFLD()+"");
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "You need to parse data set first!");
+            }
         }
         else if(featureExtractionRadio.isSelected()){
             double TotEnergy=Double.parseDouble(pcaEnergyField.getText())/100.0;
@@ -399,13 +400,16 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_deriveFeatureSpaceButtonActionPerformed
 
     private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
-        
         // first step: split dataset (in new feature space) into training / testing parts
         if(FNew==null) return; // no reduced feature space have been derived
         Classifier Cl = new Classifier();
         Cl.generateTraining_and_Test_Sets(FNew, trainSetSizeField.getText());
 
     }//GEN-LAST:event_trainButtonActionPerformed
+
+    private void selectedFeatureSpaceNumItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectedFeatureSpaceNumItemStateChanged
+        selector.setSelectedDimension(Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
+    }//GEN-LAST:event_selectedFeatureSpaceNumItemStateChanged
 
     /**
     * @param args the command line arguments
@@ -488,22 +492,6 @@ public class PR_GUI extends javax.swing.JFrame {
             }
             PM = evecs.getMatrix(0, evecs.getRowDimension()-1,m+1,evecs.getColumnDimension()-1);
         }
-
-/*            System.out.println("Eigenvectors");                
-            for(int i=0; i<r; i++){
-                for(int j=0; j<c; j++){
-                    System.out.print(evecs[i][j]+" ");
-                }
-                System.out.println();                
-            }
-            System.out.println("Eigenvalues");                
-            for(int i=0; i<r; i++){
-                for(int j=0; j<c; j++){
-                    System.out.print(evals[i][j]+" ");
-                }
-                System.out.println();                
-            }
-*/
         
         return PM;
     }
@@ -578,9 +566,6 @@ class Classifier {
 }
 
 class NNClassifier extends Classifier {
-    
-    
-    
     @Override
     protected void trainClissifier(double[][] TrainSet){
     
