@@ -2,3 +2,6 @@
 *.class
 nbproject/
 Maple_Oak.txt
+build/
+dist/
+.directory
