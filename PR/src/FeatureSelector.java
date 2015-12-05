@@ -197,7 +197,7 @@ public class FeatureSelector {
                 featureMatrixRowIndexes[lastRowIndex] < featureMatrixRowDim;
                 featureMatrixRowIndexes[lastRowIndex]++) {
 
-            if (checkForFeatureIndexRepeats(chosenFeatures)) {
+            if (chosenFeatures != null && checkForFeatureIndexRepeats(chosenFeatures)) {
                 continue;
             }
 
