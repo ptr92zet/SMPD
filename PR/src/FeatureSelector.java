@@ -160,8 +160,8 @@ public class FeatureSelector {
             int[] chosenFeatures = getFeatureWinnersFLD();
 
             for (tempSelectedDimension = 2;
-                    tempSelectedDimension <= selectedDimension;
-                    tempSelectedDimension++) {
+                tempSelectedDimension <= selectedDimension;
+                tempSelectedDimension++) {
 
                 goThroughChosenFeatures(chosenFeatures);
                 chosenFeatures = getFeatureWinnersFLD();
@@ -197,13 +197,7 @@ public class FeatureSelector {
                 featureMatrixRowIndexes[lastRowIndex] < featureMatrixRowDim;
                 featureMatrixRowIndexes[lastRowIndex]++) {
 
-            boolean featureAlreadySelected = false;
-            if (chosenFeatures != null) {
-                featureAlreadySelected
-                        = checkForFeatureIndexRepeats(chosenFeatures);
-            }
-
-            if (featureAlreadySelected) {
+            if (checkForFeatureIndexRepeats(chosenFeatures)) {
                 continue;
             }
 
@@ -300,9 +294,6 @@ public class FeatureSelector {
 
     private Tuple<Double, double[]> computeDetAndMeanMatrix(Matrix currentXMatrix) {
         System.out.println("[" + (new Date().toString()) + "] I'm in function: computeDetAndMeanMatrix, step: " + ++stepCounter);
-        if (stepCounter == 62) {
-            int a = 5;
-        }
         Matrix meanMatrix = null;
         Matrix diffMatrix = null;
         Matrix sMatrix = null;
