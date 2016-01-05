@@ -28,10 +28,6 @@ public class FeatureSelectorSfsImpl extends AbstractFeatureSelector {
     private long startTime, stopTime;
     private long stepCounter = 0;
 
-    private ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
-    private HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
-    private ArrayList<Matrix> classMatrixes = new ArrayList<Matrix>();
-
     @Override
     public void readDataSetFromFile() {
         isDataSetParsed = false;

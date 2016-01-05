@@ -1,3 +1,8 @@
+
+import Jama.Matrix;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,6 +18,10 @@ public abstract class AbstractFeatureSelector implements FeatureSelector {
     protected boolean isDataSetRead = false;
     protected boolean isDataSetParsed = false;
     protected int selectedDimension;
+
+    protected ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
+    protected HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
+    protected ArrayList<Matrix> classMatrixes = new ArrayList<Matrix>();
 
     @Override
     public String getInputDataFileName() {
