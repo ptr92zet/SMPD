@@ -29,7 +29,7 @@ public class PR_GUI extends javax.swing.JFrame {
     public PR_GUI() {
         initComponents();
         setSize(720,410);
-        selector = new FeatureSelector();
+        selector = new FeatureSelectorSfsImpl();
         selector.setSelectedDimension(Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
         System.out.println("dim: " + selector.getSelectedDimension());
         for (int i=0; i<64; i++) {
