@@ -35,6 +35,7 @@ public class PR_GUI extends javax.swing.JFrame {
         for (int i=0; i<64; i++) {
             selectedFeatureSpaceNum.addItem(Integer.toString(i+1));
         }
+        System.out.println(classifierSelectComboBox.getSelectedItem().toString());
     }
 
     /** This method is called from within the constructor to
@@ -100,7 +101,7 @@ public class PR_GUI extends javax.swing.JFrame {
             }
         });
         getContentPane().add(readDatasetButton);
-        readDatasetButton.setBounds(20, 10, 130, 24);
+        readDatasetButton.setBounds(20, 10, 130, 23);
 
         datasetPanel.setBackground(new java.awt.Color(204, 255, 255));
         datasetPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -166,7 +167,7 @@ public class PR_GUI extends javax.swing.JFrame {
             }
         });
         getContentPane().add(parseDatasetButton);
-        parseDatasetButton.setBounds(190, 10, 130, 24);
+        parseDatasetButton.setBounds(190, 10, 130, 23);
 
         featureSpacePanel.setBackground(new java.awt.Color(255, 255, 204));
         featureSpacePanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -179,7 +180,7 @@ public class PR_GUI extends javax.swing.JFrame {
 
         featureSpaceDimLabel.setText("FS Dimension");
         featureSpacePanel.add(featureSpaceDimLabel);
-        featureSpaceDimLabel.setBounds(178, 9, 81, 18);
+        featureSpaceDimLabel.setBounds(178, 9, 63, 14);
 
         selectedFeatureSpaceNum.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1" }));
         selectedFeatureSpaceNum.addItemListener(new java.awt.event.ItemListener() {
@@ -188,7 +189,7 @@ public class PR_GUI extends javax.swing.JFrame {
             }
         });
         featureSpacePanel.add(selectedFeatureSpaceNum);
-        selectedFeatureSpaceNum.setBounds(249, 6, 60, 24);
+        selectedFeatureSpaceNum.setBounds(249, 6, 60, 20);
         featureSpacePanel.add(fsSeparator);
         fsSeparator.setBounds(14, 41, 290, 10);
 
@@ -201,7 +202,7 @@ public class PR_GUI extends javax.swing.JFrame {
             }
         });
         featureSpacePanel.add(featureExtractionRadio);
-        featureExtractionRadio.setBounds(10, 140, 134, 21);
+        featureExtractionRadio.setBounds(10, 140, 115, 23);
 
         featureSelectionRadio.setBackground(new java.awt.Color(255, 255, 204));
         rbg_F.add(featureSelectionRadio);
@@ -213,7 +214,7 @@ public class PR_GUI extends javax.swing.JFrame {
             }
         });
         featureSpacePanel.add(featureSelectionRadio);
-        featureSelectionRadio.setBounds(10, 60, 126, 21);
+        featureSelectionRadio.setBounds(10, 60, 109, 23);
 
         deriveFeatureSpaceButton.setText("Derive Feature Space");
         deriveFeatureSpaceButton.addActionListener(new java.awt.event.ActionListener() {
@@ -222,41 +223,41 @@ public class PR_GUI extends javax.swing.JFrame {
             }
         });
         featureSpacePanel.add(deriveFeatureSpaceButton);
-        deriveFeatureSpaceButton.setBounds(10, 210, 292, 24);
+        deriveFeatureSpaceButton.setBounds(10, 210, 292, 23);
 
         criterionLabel.setText("Criterion");
         featureSpacePanel.add(criterionLabel);
-        criterionLabel.setBounds(200, 80, 52, 18);
+        criterionLabel.setBounds(200, 80, 41, 14);
 
         criterionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Fisher discriminant", "Classification error" }));
         criterionComboBox.setEnabled(false);
         featureSpacePanel.add(criterionComboBox);
-        criterionComboBox.setBounds(160, 100, 140, 24);
+        criterionComboBox.setBounds(160, 100, 140, 20);
 
         pcaLDAComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "PCA", "LDA" }));
         pcaLDAComboBox.setEnabled(false);
         featureSpacePanel.add(pcaLDAComboBox);
-        pcaLDAComboBox.setBounds(190, 140, 70, 24);
+        pcaLDAComboBox.setBounds(190, 140, 70, 20);
 
         energyLabel.setText("Energy");
         featureSpacePanel.add(energyLabel);
-        energyLabel.setBounds(20, 180, 42, 18);
+        energyLabel.setBounds(20, 180, 34, 14);
 
         pcaEnergyField.setText("80");
         featureSpacePanel.add(pcaEnergyField);
-        pcaEnergyField.setBounds(70, 180, 30, 24);
+        pcaEnergyField.setBounds(70, 180, 30, 20);
 
         percentLabel1.setText("%");
         featureSpacePanel.add(percentLabel1);
-        percentLabel1.setBounds(110, 180, 20, 18);
+        percentLabel1.setBounds(110, 180, 20, 14);
 
         newDimensionLabel.setText("New dimension:");
         featureSpacePanel.add(newDimensionLabel);
-        newDimensionLabel.setBounds(160, 180, 96, 18);
+        newDimensionLabel.setBounds(160, 180, 75, 14);
 
         newDimensionField.setText("...");
         featureSpacePanel.add(newDimensionField);
-        newDimensionField.setBounds(270, 180, 30, 18);
+        newDimensionField.setBounds(270, 180, 30, 14);
 
         jCheckBox1.setText("SFS");
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
@@ -298,11 +299,16 @@ public class PR_GUI extends javax.swing.JFrame {
 
         classifierMethodLabel.setText("Method");
         classifierPanel.add(classifierMethodLabel);
-        classifierMethodLabel.setBounds(14, 44, 48, 18);
+        classifierMethodLabel.setBounds(14, 44, 36, 14);
 
         classifierSelectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Nearest neighbor (NN)", "Nearest Mean (NM)", "k-Nearest Neighbor (k-NN)", "k-Nearest Mean (k-NM)" }));
+        classifierSelectComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                classifierSelectComboBoxItemStateChanged(evt);
+            }
+        });
         classifierPanel.add(classifierSelectComboBox);
-        classifierSelectComboBox.setBounds(74, 41, 190, 24);
+        classifierSelectComboBox.setBounds(74, 41, 152, 20);
 
         trainButton.setText("Train");
         trainButton.addActionListener(new java.awt.event.ActionListener() {
@@ -311,23 +317,23 @@ public class PR_GUI extends javax.swing.JFrame {
             }
         });
         classifierPanel.add(trainButton);
-        trainButton.setBounds(40, 130, 98, 24);
+        trainButton.setBounds(40, 130, 98, 23);
 
         executeButton.setText("Execute");
         classifierPanel.add(executeButton);
-        executeButton.setBounds(210, 130, 96, 24);
+        executeButton.setBounds(210, 130, 96, 23);
 
         trainingPartLabel.setText("Training part:");
         classifierPanel.add(trainingPartLabel);
-        trainingPartLabel.setBounds(20, 170, 80, 18);
+        trainingPartLabel.setBounds(20, 170, 80, 14);
 
         trainSetSizeField.setText("80");
         classifierPanel.add(trainSetSizeField);
-        trainSetSizeField.setBounds(110, 170, 20, 24);
+        trainSetSizeField.setBounds(110, 170, 20, 20);
 
         percentLabel2.setText("%");
         classifierPanel.add(percentLabel2);
-        percentLabel2.setBounds(140, 170, 20, 18);
+        percentLabel2.setBounds(140, 170, 20, 14);
 
         getContentPane().add(classifierPanel);
         classifierPanel.setBounds(340, 150, 410, 240);
@@ -337,19 +343,19 @@ public class PR_GUI extends javax.swing.JFrame {
 
         fsWinnerLabel.setText("FS Winner:");
         resultsPanel.add(fsWinnerLabel);
-        fsWinnerLabel.setBounds(10, 30, 70, 18);
+        fsWinnerLabel.setBounds(10, 30, 70, 14);
 
         fldWinnerField.setText("xxx");
         resultsPanel.add(fldWinnerField);
-        fldWinnerField.setBounds(100, 30, 70, 18);
+        fldWinnerField.setBounds(100, 30, 70, 14);
 
         fldValueLabel.setText("FLD value: ");
         resultsPanel.add(fldValueLabel);
-        fldValueLabel.setBounds(10, 60, 70, 18);
+        fldValueLabel.setBounds(10, 60, 70, 14);
 
         fldWinnerValueField.setText("vvv");
         resultsPanel.add(fldWinnerValueField);
-        fldWinnerValueField.setBounds(100, 60, 80, 18);
+        fldWinnerValueField.setBounds(100, 60, 80, 14);
 
         getContentPane().add(resultsPanel);
         resultsPanel.setBounds(340, 10, 230, 130);
@@ -412,15 +418,15 @@ public class PR_GUI extends javax.swing.JFrame {
     private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
         // first step: split dataset (in new feature space) into training / testing parts
         if(FNew==null) return; // no reduced feature space have been derived
-        Classifier Cl = new Classifier();
-        Cl.generateTraining_and_Test_Sets(FNew, trainSetSizeField.getText());
+        //Classifier Cl = new Classifier();
+        //Cl.generateTraining_and_Test_Sets(FNew, trainSetSizeField.getText());
 
     }//GEN-LAST:event_trainButtonActionPerformed
 
     private void selectedFeatureSpaceNumItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectedFeatureSpaceNumItemStateChanged
         selector.setSelectedDimension(Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
     }//GEN-LAST:event_selectedFeatureSpaceNumItemStateChanged
-
+    
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         if (jCheckBox1.isSelected()) {
             selector = new FeatureSelectorSfsImpl();
@@ -441,6 +447,11 @@ public class PR_GUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "You need to read data set first!");
         }
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void classifierSelectComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_classifierSelectComboBoxItemStateChanged
+        int a=0;
+        a++;
+    }//GEN-LAST:event_classifierSelectComboBoxItemStateChanged
 
     /**
     * @param args the command line arguments
@@ -553,53 +564,5 @@ public class PR_GUI extends javax.swing.JFrame {
     private double[][] projectSamples(Matrix FOld, Matrix TransformMat) {
         
         return (FOld.transpose().times(TransformMat)).transpose().getArrayCopy();
-    }
-}
-
-
-class Classifier {
-    
-    double[][] TrainingSet, TestSet;
-    int[] ClassLabels;
-    final int TRAIN_SET=0, TEST_SET=1;
-    
-    void generateTraining_and_Test_Sets(double[][] Dataset, String TrainSetSize){
-
-        int[] Index = new int[Dataset[0].length];
-        double Th = Double.parseDouble(TrainSetSize)/100.0;
-        int TrainCount=0, TestCount=0;
-        for(int i=0; i<Dataset[0].length; i++) 
-            if(Math.random()<=Th) {
-                Index[i]=TRAIN_SET;
-                TrainCount++;
-            }
-            else {
-                Index[i]=TEST_SET;
-                TestCount++;
-            }   
-        TrainingSet = new double[Dataset.length][TrainCount];
-        TestSet = new double[Dataset.length][TestCount];
-        TrainCount=0;
-        TestCount=0;
-        // label vectors for training/test sets
-        for(int i=0; i<Index.length; i++){
-            if(Index[i]==TRAIN_SET){
-                System.arraycopy(Dataset[i], 0, TrainingSet[TrainCount++], 0, Dataset[0].length);
-            }
-            else
-                System.arraycopy(Dataset[i], 0, TestSet[TestCount++], 0, Dataset[0].length);                
-        }
-    }
-    
-    protected void trainClissifier(double[][] TrainSet){
-        
-    }
-    
-}
-
-class NNClassifier extends Classifier {
-    @Override
-    protected void trainClissifier(double[][] TrainSet){
-    
     }
 }
