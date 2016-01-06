@@ -18,7 +18,6 @@ public class NNClassifier extends AbstractClassifier {
     public NNClassifier(double trainRatio, AbstractFeatureSelector selectorInProgram)
     {
         super(trainRatio, selectorInProgram);
-        super.resetClassificationCounters();
     }
 
     // FROM INTERFACE

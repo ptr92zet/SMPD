@@ -37,6 +37,7 @@ public abstract class AbstractClassifier implements Classifier{
         this.bestFeaturesIndexes = selector.getFeatureWinnersFLD();
         this.allRowIndexes = new int[4][1];
         this.isDataSetTrained = false;
+        this.resetClassificationCounters();
     }
 
     // FROM INTERFACE
@@ -79,8 +80,9 @@ public abstract class AbstractClassifier implements Classifier{
     }
 
     @Override
-    public boolean isDataSetTrained() {
-        return this.isDataSetTrained;
+    public void getDerivedFeaturesFromSelector() {
+        getAllRowIndexes();
+        getArraysBestFeaturesOnly();
     }
 
     @Override
@@ -96,9 +98,8 @@ public abstract class AbstractClassifier implements Classifier{
     }
 
     @Override
-    public void getDerivedFeaturesFromSelector() {
-        getAllRowIndexes();
-        getArraysBestFeaturesOnly();
+    public boolean isDataSetTrained() {
+        return this.isDataSetTrained;
     }
 
     @Override
