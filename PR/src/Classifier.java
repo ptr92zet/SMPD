@@ -11,4 +11,5 @@
 public interface Classifier {
     public void generateTrainingAndTestSets(double trainRatio, AbstractFeatureSelector selectorInProgram);
     public void classify();
+    public void resetClassificationCounters();
 }

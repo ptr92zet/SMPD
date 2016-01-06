@@ -28,6 +28,11 @@ public abstract class AbstractClassifier implements Classifier{
     protected Matrix testMatrixA;
     protected Matrix testMatrixB;
     
+    protected int classACount, classBCount;
+    protected int correctlyClassifiedA, correctlyClassifiedB;
+    protected int incorrectlyClassifiedA, incorrectlyClassifiedB;
+    protected int unknownA, unknownB;
+    
     @Override
     public void generateTrainingAndTestSets(double trainRatio, AbstractFeatureSelector selectorInProgram){
         this.trainPercentage = trainRatio; 
@@ -67,6 +72,18 @@ public abstract class AbstractClassifier implements Classifier{
         System.out.println("TestArrayB Size: " + testMatrixBSize);
         
         this.isDataSetTrained = true;
+    }
+    
+    @Override
+    public void resetClassificationCounters() {
+        classACount = 0;
+        classBCount = 0;
+        correctlyClassifiedA = 0;
+        correctlyClassifiedB = 0;
+        incorrectlyClassifiedA = 0;
+        incorrectlyClassifiedB = 0;
+        unknownA = 0;
+        unknownB = 0;
     }
     
 
