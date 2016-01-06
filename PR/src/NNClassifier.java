@@ -20,7 +20,8 @@ public class NNClassifier extends AbstractClassifier {
         super(trainRatio, selectorInProgram);
         super.resetClassificationCounters();
     }
-        
+
+    // FROM INTERFACE
     @Override
     public void classify() {
         int instanceCount, correctCount;
@@ -40,12 +41,12 @@ public class NNClassifier extends AbstractClassifier {
             JOptionPane.showMessageDialog(null, "You need to derive feature space first!");
         }
     }
-    
 
-    private void classifyOneTestArray(double[][] testArray, String className) {
-        System.out.println("*********************\n" +
-                           "Starting function classifyOneTestArrayNN for class: " + className + 
-                           "\n*********************");
+    // FROM ABSTRACT CLASS
+    @Override
+    protected void classifyOneTestArray(double[][] testArray, String className) {
+        double tmpDist = 0.0;
+        System.out.println("--> Starting function classifyOneTestArrayNN for class: " + className + "\n");
         
         for (double[] testInstance: testArray) { // for each test instance of current class
             System.out.println("Classifying sample from " + className + ": " + Arrays.toString(testInstance));
@@ -53,7 +54,10 @@ public class NNClassifier extends AbstractClassifier {
             closestDistance = Double.MAX_VALUE;
             for (double[] trainInstanceA : trainArrayA) { // for each training instance of A-class
                 //System.out.println("Calculating distance to the sample from class A: " + Arrays.toString(trainInstanceA));
-                checkForNearestNeighbor(trainInstanceA, testInstance);
+                tmpDist = countDistance(trainInstanceA, testInstance);
+                if (tmpDist < closestDistance) {
+                    closestDistance = tmpDist;
+                }
             }
             tmpDistanceA = closestDistance;
             System.out.println("Now closestDistance to the samples for class A is calculated: " + Double.toString(tmpDistanceA));
@@ -61,7 +65,10 @@ public class NNClassifier extends AbstractClassifier {
             closestDistance = Double.MAX_VALUE;
             for (double[] trainInstanceB : trainArrayB) { // for each training instance of B-class
                 //System.out.println("Calculating distance to the sample from class B: " + Arrays.toString(trainInstanceB));
-                checkForNearestNeighbor(trainInstanceB, testInstance);
+                tmpDist = countDistance(trainInstanceB, testInstance);
+                if (tmpDist < closestDistance) {
+                    closestDistance = tmpDist;
+                }
             }
             tmpDistanceB = closestDistance;
             System.out.println("Now closestDistance to the samples for class B is calculated: " + Double.toString(tmpDistanceB));
@@ -70,32 +77,9 @@ public class NNClassifier extends AbstractClassifier {
             System.out.println("");
         }
     }
-    
-    private void checkForNearestNeighbor(double[] trainInstance, double[] testInstance) {
-        double tmpDist = countDistance(trainInstance, testInstance);
-        if (tmpDist < closestDistance) {
-            closestDistance = tmpDist;
-        }
-    }
-    
-    private double countDistance(double[] trainInstance, double[] testInstance) {
-        double dist = 0;        
-        if (trainInstance.length == testInstance.length) {
-            for (int i=0; i<trainInstance.length; i++) {// for each feature within the given dimension
-                dist += (testInstance[i]- trainInstance[i])*(testInstance[i]- trainInstance[i]);
-            }
-            dist = Math.sqrt(dist); // distance between current test and training instance
-        }
-        else {
-            JOptionPane.showMessageDialog(null, "Row lengths differ!\nTest row: " + 
-                                                Arrays.toString(testInstance) + "\nTraining row: " +
-                                                Arrays.toString(trainInstance));
-            System.exit(-1);
-        }
-        return dist;
-    }
-    
-    private void checkWhichClass(String className, double distA, double distB) {
+
+    @Override
+    protected void checkWhichClass(String className, double distA, double distB) {
         switch (className) {
             case "A":
                 classACount++;
@@ -148,4 +132,3 @@ public class NNClassifier extends AbstractClassifier {
         }
     }
 }
-                

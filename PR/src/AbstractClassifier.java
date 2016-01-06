@@ -38,7 +38,8 @@ public abstract class AbstractClassifier implements Classifier{
         this.allRowIndexes = new int[4][1];
         this.isDataSetTrained = false;
     }
-    
+
+    // FROM INTERFACE
     @Override
     public void generateTrainingAndTestSets(){
         Matrix matrixA = selector.classMatrixes.get(0).copy();
@@ -76,12 +77,12 @@ public abstract class AbstractClassifier implements Classifier{
         
         isDataSetTrained = true;
     }
-    
+
     @Override
     public boolean isDataSetTrained() {
         return this.isDataSetTrained;
     }
-    
+
     @Override
     public void resetClassificationCounters() {
         this.classACount = 0;
@@ -93,13 +94,27 @@ public abstract class AbstractClassifier implements Classifier{
         this.unknownA = 0;
         this.unknownB = 0;
     }
-    
+
     @Override
     public void getDerivedFeaturesFromSelector() {
         getAllRowIndexes();
         getArraysBestFeaturesOnly();
     }
-    
+
+    @Override
+    public double countDistance(double[] trainInstance, double[] testInstance) {
+        double dist = 0;        
+        for (int i=0; i<trainInstance.length; i++) { // for each feature within the given dimension
+            dist += (testInstance[i]- trainInstance[i])*(testInstance[i]- trainInstance[i]);
+        }
+        return Math.sqrt(dist); // distance between current test and training instance
+    }
+
+    // OWN ABSTRACT METHODS
+    protected abstract void classifyOneTestArray(double[][] array, String className);
+    protected abstract void checkWhichClass(String className, double distA, double distB);
+
+    // OWN HELPERS
     private void getAllRowIndexes() {
         int[] indexes;
         
@@ -127,7 +142,7 @@ public abstract class AbstractClassifier implements Classifier{
         }
         allRowIndexes[3] = indexes;
     }
-    
+
     private void getArraysBestFeaturesOnly() {
         System.out.println("BEST FEATURES: " + Arrays.toString(bestFeaturesIndexes));
         trainArrayA = trainMatrixA.getMatrix(allRowIndexes[0], bestFeaturesIndexes).getArrayCopy();
@@ -135,6 +150,4 @@ public abstract class AbstractClassifier implements Classifier{
         testArrayA = testMatrixA.getMatrix(allRowIndexes[2], bestFeaturesIndexes).getArrayCopy();
         testArrayB = testMatrixB.getMatrix(allRowIndexes[3], bestFeaturesIndexes).getArrayCopy();
     }
-    
-    
 }
