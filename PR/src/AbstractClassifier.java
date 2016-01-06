@@ -17,8 +17,11 @@ public abstract class AbstractClassifier implements Classifier{
     protected double trainPercentage;
     protected boolean useSFS;
     protected AbstractFeatureSelector selector;
+    protected int[] bestFeaturesIndexes;
     protected Matrix matrixA;
     protected Matrix matrixB;
+    
+    public boolean isDataSetTrained = false;
     
     protected Matrix trainMatrixA;
     protected Matrix trainMatrixB;
@@ -31,16 +34,17 @@ public abstract class AbstractClassifier implements Classifier{
         this.selector = selectorInProgram;
         this.matrixA = selector.classMatrixes.get(0).copy();
         this.matrixB = selector.classMatrixes.get(1).copy();
+        this.bestFeaturesIndexes = selector.getFeatureWinnersFLD();
         
-        int matrixASize = matrixA.getRowDimension();
-        int matrixBSize = matrixB.getRowDimension();
-        int trainMatrixASize = (int)(matrixASize * trainPercentage);
-        int trainMatrixBSize = (int)(matrixBSize * trainPercentage);
+        int matrixASize = matrixA.transpose().getRowDimension();
+        int matrixBSize = matrixB.transpose().getRowDimension();
+        int trainMatrixASize = (int)(matrixASize * trainPercentage); // x % from first class instances
+        int trainMatrixBSize = (int)(matrixBSize * trainPercentage); // x % from second class instances
         int testMatrixASize = matrixASize - trainMatrixASize;
         int testMatrixBSize = matrixBSize - trainMatrixBSize;       
         
-        int colDimA = matrixA.getColumnDimension();
-        int colDimB = matrixB.getColumnDimension();
+        int colDimA = matrixA.transpose().getColumnDimension();
+        int colDimB = matrixB.transpose().getColumnDimension();
         
         int[] allColumnsIndicesA = new int[colDimA];
         int[] allColumnsIndicesB = new int[colDimB];
@@ -52,10 +56,17 @@ public abstract class AbstractClassifier implements Classifier{
             allColumnsIndicesB[i] = i;
         }
         
-        trainMatrixA = matrixA.getMatrix(0, trainMatrixASize-1, allColumnsIndicesA);
-        trainMatrixB = matrixB.getMatrix(0, trainMatrixBSize-1, allColumnsIndicesB);
-        testMatrixA = matrixA.getMatrix(trainMatrixASize, matrixASize-1, allColumnsIndicesA);
-        testMatrixB = matrixB.getMatrix(trainMatrixBSize, matrixBSize-1, allColumnsIndicesB);
+        this.trainMatrixA = matrixA.transpose().getMatrix(0, trainMatrixASize-1, allColumnsIndicesA); 
+        this.trainMatrixB = matrixB.transpose().getMatrix(0, trainMatrixBSize-1, allColumnsIndicesB);
+        this.testMatrixA = matrixA.transpose().getMatrix(trainMatrixASize, matrixASize-1, allColumnsIndicesA);
+        this.testMatrixB = matrixB.transpose().getMatrix(trainMatrixBSize, matrixBSize-1, allColumnsIndicesB);
+        
+        System.out.println("MatrixA Size: " + matrixASize + ", TrainArrayA Size: " + trainMatrixASize);
+        System.out.println("MatrixB Size: " + matrixBSize + ", TrainArrayB Size: " + trainMatrixBSize);
+        System.out.println("TestArrayA Size: " + testMatrixASize);
+        System.out.println("TestArrayB Size: " + testMatrixBSize);
+        
+        this.isDataSetTrained = true;
     }
     
 

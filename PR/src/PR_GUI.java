@@ -21,7 +21,8 @@ import java.util.Arrays;
  */
 public class PR_GUI extends javax.swing.JFrame {
 
-    FeatureSelector selector;
+    AbstractFeatureSelector selector;
+    AbstractClassifier classifier;
     double[][] F, FNew; // original feature matrix and transformed feature matrix
     
 
@@ -302,11 +303,6 @@ public class PR_GUI extends javax.swing.JFrame {
         classifierMethodLabel.setBounds(14, 44, 36, 14);
 
         classifierSelectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Nearest neighbor (NN)", "Nearest Mean (NM)", "k-Nearest Neighbor (k-NN)", "k-Nearest Mean (k-NM)" }));
-        classifierSelectComboBox.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                classifierSelectComboBoxItemStateChanged(evt);
-            }
-        });
         classifierPanel.add(classifierSelectComboBox);
         classifierSelectComboBox.setBounds(74, 41, 152, 20);
 
@@ -320,6 +316,11 @@ public class PR_GUI extends javax.swing.JFrame {
         trainButton.setBounds(40, 130, 98, 23);
 
         executeButton.setText("Execute");
+        executeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                executeButtonActionPerformed(evt);
+            }
+        });
         classifierPanel.add(executeButton);
         executeButton.setBounds(210, 130, 96, 23);
 
@@ -416,11 +417,9 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_deriveFeatureSpaceButtonActionPerformed
 
     private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
-        // first step: split dataset (in new feature space) into training / testing parts
-        if(FNew==null) return; // no reduced feature space have been derived
-        //Classifier Cl = new Classifier();
-        //Cl.generateTraining_and_Test_Sets(FNew, trainSetSizeField.getText());
-
+        double trainRatio = Double.parseDouble(trainSetSizeField.getText())/100;
+        classifier = new NNClassifier();
+        classifier.generateTrainingAndTestSets(trainRatio, selector);
     }//GEN-LAST:event_trainButtonActionPerformed
 
     private void selectedFeatureSpaceNumItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectedFeatureSpaceNumItemStateChanged
@@ -448,11 +447,16 @@ public class PR_GUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
-    private void classifierSelectComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_classifierSelectComboBoxItemStateChanged
-        int a=0;
-        a++;
-    }//GEN-LAST:event_classifierSelectComboBoxItemStateChanged
+    private void executeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_executeButtonActionPerformed
+        if (classifier.isDataSetTrained) {
+            classifier.classify();
+        }
+        else {
+            JOptionPane.showMessageDialog(null, "You need to train data set first!");
+        }
+    }//GEN-LAST:event_executeButtonActionPerformed
 
+    
     /**
     * @param args the command line arguments
     */
