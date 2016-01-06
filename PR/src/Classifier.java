@@ -9,7 +9,11 @@
  * @author ptr
  */
 public interface Classifier {
-    public void generateTrainingAndTestSets(double trainRatio, AbstractFeatureSelector selectorInProgram);
+    public void generateTrainingAndTestSets();
+    public void getDerivedFeaturesFromSelector();
+
     public void classify();
+    
     public void resetClassificationCounters();
+    public boolean isDataSetTrained();
 }

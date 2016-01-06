@@ -1,6 +1,5 @@
-
 import Jama.Matrix;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -15,31 +14,35 @@ import java.util.ArrayList;
 public abstract class AbstractClassifier implements Classifier{
 
     protected double trainPercentage;
-    protected boolean useSFS;
     protected AbstractFeatureSelector selector;
+
     protected int[] bestFeaturesIndexes;
-    protected Matrix matrixA;
-    protected Matrix matrixB;
+    protected int[][] allRowIndexes; // 0-trainingA, 1-trainingB, 2-testA, 3-testB
     
-    public boolean isDataSetTrained = false;
-    
-    protected Matrix trainMatrixA;
-    protected Matrix trainMatrixB;
-    protected Matrix testMatrixA;
-    protected Matrix testMatrixB;
-    
+    protected Matrix trainMatrixA, trainMatrixB;
+    protected Matrix testMatrixA, testMatrixB;
+    protected double[][] trainArrayA, trainArrayB;
+    protected double[][] testArrayA, testArrayB;
+
     protected int classACount, classBCount;
     protected int correctlyClassifiedA, correctlyClassifiedB;
     protected int incorrectlyClassifiedA, incorrectlyClassifiedB;
     protected int unknownA, unknownB;
     
-    @Override
-    public void generateTrainingAndTestSets(double trainRatio, AbstractFeatureSelector selectorInProgram){
+    private boolean isDataSetTrained;
+    
+    public AbstractClassifier(double trainRatio, AbstractFeatureSelector selectorInProgram) {
         this.trainPercentage = trainRatio; 
         this.selector = selectorInProgram;
-        this.matrixA = selector.classMatrixes.get(0).copy();
-        this.matrixB = selector.classMatrixes.get(1).copy();
         this.bestFeaturesIndexes = selector.getFeatureWinnersFLD();
+        this.allRowIndexes = new int[4][1];
+        this.isDataSetTrained = false;
+    }
+    
+    @Override
+    public void generateTrainingAndTestSets(){
+        Matrix matrixA = selector.classMatrixes.get(0).copy();
+        Matrix matrixB = selector.classMatrixes.get(1).copy();
         
         int matrixASize = matrixA.transpose().getRowDimension();
         int matrixBSize = matrixB.transpose().getRowDimension();
@@ -71,20 +74,67 @@ public abstract class AbstractClassifier implements Classifier{
         System.out.println("TestArrayA Size: " + testMatrixASize);
         System.out.println("TestArrayB Size: " + testMatrixBSize);
         
-        this.isDataSetTrained = true;
+        isDataSetTrained = true;
+    }
+    
+    @Override
+    public boolean isDataSetTrained() {
+        return this.isDataSetTrained;
     }
     
     @Override
     public void resetClassificationCounters() {
-        classACount = 0;
-        classBCount = 0;
-        correctlyClassifiedA = 0;
-        correctlyClassifiedB = 0;
-        incorrectlyClassifiedA = 0;
-        incorrectlyClassifiedB = 0;
-        unknownA = 0;
-        unknownB = 0;
+        this.classACount = 0;
+        this.classBCount = 0;
+        this.correctlyClassifiedA = 0;
+        this.correctlyClassifiedB = 0;
+        this.incorrectlyClassifiedA = 0;
+        this.incorrectlyClassifiedB = 0;
+        this.unknownA = 0;
+        this.unknownB = 0;
     }
     
-
+    @Override
+    public void getDerivedFeaturesFromSelector() {
+        getAllRowIndexes();
+        getArraysBestFeaturesOnly();
+    }
+    
+    private void getAllRowIndexes() {
+        int[] indexes;
+        
+        indexes = new int[trainMatrixA.getRowDimension()];
+        for(int i=0; i<trainMatrixA.getRowDimension(); i++) {
+            indexes[i] = i;
+        }
+        allRowIndexes[0] = indexes;
+        
+        indexes = new int[trainMatrixB.getRowDimension()];
+        for(int i=0; i<trainMatrixB.getRowDimension(); i++) {
+            indexes[i] = i;
+        }
+        allRowIndexes[1] = indexes;
+        
+        indexes = new int[testMatrixA.getRowDimension()];
+        for(int i=0; i<testMatrixA.getRowDimension(); i++) {
+            indexes[i] = i;
+        }
+        allRowIndexes[2] = indexes;
+        
+        indexes = new int[testMatrixB.getRowDimension()];
+        for(int i=0; i<testMatrixB.getRowDimension(); i++) {
+            indexes[i] = i;
+        }
+        allRowIndexes[3] = indexes;
+    }
+    
+    private void getArraysBestFeaturesOnly() {
+        System.out.println("BEST FEATURES: " + Arrays.toString(bestFeaturesIndexes));
+        trainArrayA = trainMatrixA.getMatrix(allRowIndexes[0], bestFeaturesIndexes).getArrayCopy();
+        trainArrayB = trainMatrixB.getMatrix(allRowIndexes[1], bestFeaturesIndexes).getArrayCopy();
+        testArrayA = testMatrixA.getMatrix(allRowIndexes[2], bestFeaturesIndexes).getArrayCopy();
+        testArrayB = testMatrixB.getMatrix(allRowIndexes[3], bestFeaturesIndexes).getArrayCopy();
+    }
+    
+    
 }

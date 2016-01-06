@@ -36,7 +36,6 @@ public class PR_GUI extends javax.swing.JFrame {
         for (int i=0; i<64; i++) {
             selectedFeatureSpaceNum.addItem(Integer.toString(i+1));
         }
-        System.out.println(classifierSelectComboBox.getSelectedItem().toString());
     }
 
     /** This method is called from within the constructor to
@@ -418,8 +417,8 @@ public class PR_GUI extends javax.swing.JFrame {
 
     private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
         double trainRatio = Double.parseDouble(trainSetSizeField.getText())/100;
-        classifier = new NNClassifier();
-        classifier.generateTrainingAndTestSets(trainRatio, selector);
+        classifier = new NNClassifier(trainRatio, selector);
+        classifier.generateTrainingAndTestSets();
     }//GEN-LAST:event_trainButtonActionPerformed
 
     private void selectedFeatureSpaceNumItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectedFeatureSpaceNumItemStateChanged
@@ -448,7 +447,7 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     private void executeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_executeButtonActionPerformed
-        if (classifier.isDataSetTrained) {
+        if (classifier != null && classifier.isDataSetTrained()) {
             classifier.classify();
         }
         else {

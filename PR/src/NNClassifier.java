@@ -1,5 +1,3 @@
-
-import Jama.Matrix;
 import java.util.Arrays;
 import javax.swing.JOptionPane;
 
@@ -16,28 +14,22 @@ import javax.swing.JOptionPane;
 public class NNClassifier extends AbstractClassifier {
     
     private double closestDistance, tmpDistanceA = 0, tmpDistanceB = 0;
-    private double[][] trainArrayA, trainArrayB, testArrayA, testArrayB;
-    private int[][] allRowIndexes; // 0-trainingA, 1-trainingB, 2-testA, 3-testB
-    private boolean isClassA, isClassB;
     
-    public NNClassifier()
+    public NNClassifier(double trainRatio, AbstractFeatureSelector selectorInProgram)
     {
+        super(trainRatio, selectorInProgram);
         super.resetClassificationCounters();
-        this.isClassA = false;
-        this.isClassB = false;
-        super.isDataSetTrained = false;
     }
-    
-           //super.generateTrainingAndTestSets(trainRatio, selector);
-    
+        
     @Override
     public void classify() {
-        int instanceCount = 0, correctCount = 0;
+        int instanceCount, correctCount;
         resetClassificationCounters();
+        
         if (this.bestFeaturesIndexes != null) {
-            getDerivedFeatures();
-            classifyOneTestArrayNN(testArrayA, "A");
-            classifyOneTestArrayNN(testArrayB, "B");
+            getDerivedFeaturesFromSelector();
+            classifyOneTestArray(testArrayA, "A");
+            classifyOneTestArray(testArrayB, "B");
             instanceCount = classACount + classBCount;
             System.out.println("\n\nEND!\nAll samples to classify was: " + Integer.toString(instanceCount));
             correctCount = correctlyClassifiedA + correctlyClassifiedB;
@@ -49,56 +41,13 @@ public class NNClassifier extends AbstractClassifier {
         }
     }
     
-    private void getDerivedFeatures() {
-        getAllRowIndexes();
-        getArraysBestFeaturesOnly();
-    }
-    
-    private void getAllRowIndexes() {
-        this.allRowIndexes = new int[4][1];
-        int[] indexes;
-        
-        indexes = new int[trainMatrixA.getRowDimension()];
-        for(int i=0; i<trainMatrixA.getRowDimension(); i++) {
-            indexes[i] = i;
-        }
-        allRowIndexes[0] = indexes;
-        
-        indexes = new int[trainMatrixB.getRowDimension()];
-        for(int i=0; i<trainMatrixB.getRowDimension(); i++) {
-            indexes[i] = i;
-        }
-        allRowIndexes[1] = indexes;
-        
-        indexes = new int[testMatrixA.getRowDimension()];
-        for(int i=0; i<testMatrixA.getRowDimension(); i++) {
-            indexes[i] = i;
-        }
-        allRowIndexes[2] = indexes;
-        
-        indexes = new int[testMatrixB.getRowDimension()];
-        for(int i=0; i<testMatrixB.getRowDimension(); i++) {
-            indexes[i] = i;
-        }
-        allRowIndexes[3] = indexes;
-    }
-    
-    private void getArraysBestFeaturesOnly() {
-        System.out.println("BEST FEATURES: " + Arrays.toString(bestFeaturesIndexes));
-        trainArrayA = trainMatrixA.getMatrix(allRowIndexes[0], bestFeaturesIndexes).getArrayCopy();
-        trainArrayB = trainMatrixB.getMatrix(allRowIndexes[1], bestFeaturesIndexes).getArrayCopy();
-        testArrayA = testMatrixA.getMatrix(allRowIndexes[2], bestFeaturesIndexes).getArrayCopy();
-        testArrayB = testMatrixB.getMatrix(allRowIndexes[3], bestFeaturesIndexes).getArrayCopy();
-    }
-    
-    private void classifyOneTestArrayNN(double[][] testArray, String className) {
+
+    private void classifyOneTestArray(double[][] testArray, String className) {
         System.out.println("*********************\n" +
                            "Starting function classifyOneTestArrayNN for class: " + className + 
                            "\n*********************");
         
         for (double[] testInstance: testArray) { // for each test instance of current class
-            isClassA = false;
-            isClassB = false;
             System.out.println("Classifying sample from " + className + ": " + Arrays.toString(testInstance));
             
             closestDistance = Double.MAX_VALUE;
@@ -151,7 +100,6 @@ public class NNClassifier extends AbstractClassifier {
             case "A":
                 classACount++;
                 if (distA < distB) {
-                    isClassA = true;
                     correctlyClassifiedA++;
                     System.out.println("Correctly classified as class A! classACount: " + Integer.toString(classACount) + 
                                        ", correctlyClassifiedA: " + Integer.toString(correctlyClassifiedA) +
@@ -176,7 +124,6 @@ public class NNClassifier extends AbstractClassifier {
             case "B":
                 classBCount++;
                 if (distB < distA) {
-                    isClassB = true;
                     correctlyClassifiedB++;
                     System.out.println("Correctly classified as class B! classBCount: " + Integer.toString(classBCount) + 
                                        ", correctlyClassifiedB: " + Integer.toString(correctlyClassifiedB) +
