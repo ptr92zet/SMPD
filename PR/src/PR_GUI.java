@@ -77,13 +77,15 @@ public class PR_GUI extends javax.swing.JFrame {
         bigResultsPanel = new javax.swing.JPanel();
         classifierPanel = new javax.swing.JPanel();
         classifierPanelLabel = new javax.swing.JLabel();
-        classifierMethodLabel = new javax.swing.JLabel();
         classifierSelectComboBox = new javax.swing.JComboBox();
         trainButton = new javax.swing.JButton();
         executeButton = new javax.swing.JButton();
         trainingPartLabel = new javax.swing.JLabel();
         trainSetSizeField = new javax.swing.JTextField();
         percentLabel2 = new javax.swing.JLabel();
+        classifierMethodLabel1 = new javax.swing.JLabel();
+        kParameterLabel = new javax.swing.JLabel();
+        kParameterTextField = new javax.swing.JTextField();
         resultsPanel = new javax.swing.JPanel();
         fsWinnerLabel = new javax.swing.JLabel();
         fldWinnerField = new javax.swing.JLabel();
@@ -297,11 +299,12 @@ public class PR_GUI extends javax.swing.JFrame {
         classifierPanel.add(classifierPanelLabel);
         classifierPanelLabel.setBounds(10, 0, 79, 26);
 
-        classifierMethodLabel.setText("Method");
-        classifierPanel.add(classifierMethodLabel);
-        classifierMethodLabel.setBounds(14, 44, 36, 14);
-
         classifierSelectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Nearest neighbor (NN)", "Nearest Mean (NM)", "k-Nearest Neighbor (k-NN)", "k-Nearest Mean (k-NM)" }));
+        classifierSelectComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                classifierSelectComboBoxItemStateChanged(evt);
+            }
+        });
         classifierPanel.add(classifierSelectComboBox);
         classifierSelectComboBox.setBounds(74, 41, 152, 20);
 
@@ -334,6 +337,19 @@ public class PR_GUI extends javax.swing.JFrame {
         percentLabel2.setText("%");
         classifierPanel.add(percentLabel2);
         percentLabel2.setBounds(140, 170, 20, 14);
+
+        classifierMethodLabel1.setText("Method");
+        classifierPanel.add(classifierMethodLabel1);
+        classifierMethodLabel1.setBounds(14, 44, 36, 14);
+
+        kParameterLabel.setText("k:");
+        classifierPanel.add(kParameterLabel);
+        kParameterLabel.setBounds(250, 44, 9, 14);
+
+        kParameterTextField.setText("5");
+        kParameterTextField.setEnabled(false);
+        classifierPanel.add(kParameterTextField);
+        kParameterTextField.setBounds(270, 41, 30, 20);
 
         getContentPane().add(classifierPanel);
         classifierPanel.setBounds(340, 150, 410, 240);
@@ -413,12 +429,16 @@ public class PR_GUI extends javax.swing.JFrame {
             // FNew is a matrix with samples projected to a new feature space
             newDimensionField.setText(FNew.length+"");
         }
+        classifier = new NNClassifier(selector);
     }//GEN-LAST:event_deriveFeatureSpaceButtonActionPerformed
 
     private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
-        double trainRatio = Double.parseDouble(trainSetSizeField.getText())/100;
-        classifier = new NNClassifier(trainRatio, selector);
-        classifier.generateTrainingAndTestSets();
+        if (classifier != null) {
+            classifier.generateTrainingAndTestSets(Double.parseDouble(trainSetSizeField.getText())/100.0);
+        }
+        else {
+            JOptionPane.showMessageDialog(null, "You need to derive feature space first!");
+        }
     }//GEN-LAST:event_trainButtonActionPerformed
 
     private void selectedFeatureSpaceNumItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectedFeatureSpaceNumItemStateChanged
@@ -447,13 +467,36 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     private void executeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_executeButtonActionPerformed
-        if (classifier != null && classifier.isDataSetTrained()) {
+        if (classifier.isDataSetTrained()) {
             classifier.classify();
         }
         else {
             JOptionPane.showMessageDialog(null, "You need to train data set first!");
         }
     }//GEN-LAST:event_executeButtonActionPerformed
+
+    private void classifierSelectComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_classifierSelectComboBoxItemStateChanged
+        int classifierTypeIndex = classifierSelectComboBox.getSelectedIndex();
+        switch (classifierTypeIndex) {
+            case 0:
+                kParameterTextField.setEnabled(false);
+                classifier = new NNClassifier(selector);
+                break;
+            case 1:
+                kParameterTextField.setEnabled(false);
+                classifier = new NNClassifier(selector);
+                break;
+            case 2:
+                kParameterTextField.setEnabled(true);
+                int k = Integer.parseInt(kParameterTextField.getText());
+                classifier = new KNNClassifier(Double.parseDouble(trainSetSizeField.getText())/100.0, selector, k);
+                break;
+            case 3:
+                kParameterTextField.setEnabled(false);
+                classifier = new NNClassifier(selector);
+                break;
+        }
+    }//GEN-LAST:event_classifierSelectComboBoxItemStateChanged
 
     
     /**
@@ -469,7 +512,7 @@ public class PR_GUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel bigResultsPanel;
-    private javax.swing.JLabel classifierMethodLabel;
+    private javax.swing.JLabel classifierMethodLabel1;
     private javax.swing.JPanel classifierPanel;
     private javax.swing.JLabel classifierPanelLabel;
     private javax.swing.JComboBox classifierSelectComboBox;
@@ -496,6 +539,8 @@ public class PR_GUI extends javax.swing.JFrame {
     private javax.swing.JSeparator fsSeparator;
     private javax.swing.JLabel fsWinnerLabel;
     private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JLabel kParameterLabel;
+    private javax.swing.JTextField kParameterTextField;
     private javax.swing.JLabel newDimensionField;
     private javax.swing.JLabel newDimensionLabel;
     private javax.swing.JButton parseDatasetButton;

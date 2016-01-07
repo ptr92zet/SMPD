@@ -15,9 +15,9 @@ public class NNClassifier extends AbstractClassifier {
     
     private double closestDistance, tmpDistanceA = 0, tmpDistanceB = 0;
     
-    public NNClassifier(double trainRatio, AbstractFeatureSelector selectorInProgram)
+    public NNClassifier(AbstractFeatureSelector selectorInProgram)
     {
-        super(trainRatio, selectorInProgram);
+        super(selectorInProgram);
     }
 
     // FROM INTERFACE
@@ -45,7 +45,7 @@ public class NNClassifier extends AbstractClassifier {
     @Override
     protected void classifyOneTestArray(double[][] testArray, String className) {
         double tmpDist = 0.0;
-        System.out.println("--> Starting function classifyOneTestArrayNN for class: " + className + "\n");
+        System.out.println("--> Starting function classifyOneTestArray for class: " + className + "\n");
         
         for (double[] testInstance: testArray) { // for each test instance of current class
             System.out.println("Classifying sample from " + className + ": " + Arrays.toString(testInstance));
@@ -77,7 +77,7 @@ public class NNClassifier extends AbstractClassifier {
         }
     }
 
-    @Override
+    //@Override
     protected void checkWhichClass(String className, double distA, double distB) {
         switch (className) {
             case "A":

@@ -1,4 +1,5 @@
 import Jama.Matrix;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /*
@@ -31,8 +32,7 @@ public abstract class AbstractClassifier implements Classifier{
     
     private boolean isDataSetTrained;
     
-    public AbstractClassifier(double trainRatio, AbstractFeatureSelector selectorInProgram) {
-        this.trainPercentage = trainRatio; 
+    public AbstractClassifier(AbstractFeatureSelector selectorInProgram) {
         this.selector = selectorInProgram;
         this.bestFeaturesIndexes = selector.getFeatureWinnersFLD();
         this.allRowIndexes = new int[4][1];
@@ -42,7 +42,8 @@ public abstract class AbstractClassifier implements Classifier{
 
     // FROM INTERFACE
     @Override
-    public void generateTrainingAndTestSets(){
+    public void generateTrainingAndTestSets(double trainRatio){
+        this.trainPercentage = trainRatio;
         Matrix matrixA = selector.classMatrixes.get(0).copy();
         Matrix matrixB = selector.classMatrixes.get(1).copy();
         
@@ -113,7 +114,8 @@ public abstract class AbstractClassifier implements Classifier{
 
     // OWN ABSTRACT METHODS
     protected abstract void classifyOneTestArray(double[][] array, String className);
-    protected abstract void checkWhichClass(String className, double distA, double distB);
+   ///protected abstract void checkWhichClass(String className, double distA, double distB);
+    //protected abstract void checkWhichClass(String className, ArrayList<Double> closestDistances);
 
     // OWN HELPERS
     private void getAllRowIndexes() {
