@@ -489,8 +489,13 @@ public class PR_GUI extends javax.swing.JFrame {
             case 2:
                 kParameterTextField.setEnabled(true);
                 int k = Integer.parseInt(kParameterTextField.getText());
-                classifier = new KNNClassifier(Double.parseDouble(trainSetSizeField.getText())/100.0, selector, k);
-                break;
+                if (k%2 != 0) {
+                    classifier = new KNNClassifier(Double.parseDouble(trainSetSizeField.getText())/100.0, selector, k);
+                    break;
+                }
+                else {
+                    JOptionPane.showMessageDialog(null, "k parameter must be an odd number!\nType k one more time.");
+                }
             case 3:
                 kParameterTextField.setEnabled(false);
                 classifier = new NNClassifier(selector);

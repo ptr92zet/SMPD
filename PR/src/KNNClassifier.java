@@ -2,8 +2,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import javax.swing.JOptionPane;
 
 /*
@@ -19,15 +17,19 @@ import javax.swing.JOptionPane;
 public class KNNClassifier extends AbstractClassifier {
 
     private int k;
-    private double tmpDistanceA = 0, tmpDistanceB = 0;
-    private ArrayList<Double> closestDistancesA;
-    private ArrayList<Double> closestDistancesB;
+    //private double tmpDistanceA = 0, tmpDistanceB = 0;
+    //private ArrayList<Double> closestDistancesA;
+    //private ArrayList<Double> closestDistancesB;
+    private ArrayList<Double> closestDistances;
+    private int swapForSecondClass;
     
     public KNNClassifier(double trainRatio, AbstractFeatureSelector selectorInProgram, int k) {
         super(selectorInProgram);
         this.k = k;
-        this.closestDistancesA = new ArrayList<Double>(k);
-        this.closestDistancesB = new ArrayList<Double>(k);
+        this.swapForSecondClass = 0;
+        //initializeClosestDistancesA();
+        //initializeClosestDistancesB();
+        initializeClosestDistances();
     }
 
     @Override
@@ -54,97 +56,103 @@ public class KNNClassifier extends AbstractClassifier {
     protected void classifyOneTestArray(double[][] testArray, String className) {
         double tmpDist = 0.0;
         double currMaxDist = 0.0;
+
         System.out.println("--> Starting function classifyOneTestArray for class: " + className + "\n");
 
         for (double[] testInstance: testArray) { // for each test instance of current class
             System.out.println("Classifying sample from " + className + ": " + Arrays.toString(testInstance));
             
-            closestDistancesA = new ArrayList<Double>(k);
+            //initializeClosestDistancesA();
+            initializeClosestDistances();
             for (double[] trainInstanceA : trainArrayA) { // for each training instance of A-class
                 //System.out.println("Calculating distance to the sample from class A: " + Arrays.toString(trainInstanceA));
                 tmpDist = countDistance(trainInstanceA, testInstance);
-                currMaxDist = Collections.max(closestDistancesA);
+                currMaxDist = Collections.max(closestDistances);
                 if (tmpDist < currMaxDist) {
-                    closestDistancesA.remove(currMaxDist);
-                    closestDistancesA.add(tmpDist);
+                    closestDistances.remove(currMaxDist);
+                    closestDistances.add(tmpDist);
                 }
             }
-            System.out.println("Now closestDistances to the samples for class A are calculated: " + Arrays.toString(closestDistancesA.toArray()));
+            //System.out.println("Now closestDistancesA to the samples for class A are calculated: " + Arrays.toString(closestDistancesA.toArray()));
+            System.out.println("Now closestDistances to the samples for class A are calculated: " + Arrays.toString(closestDistances.toArray()));
 
-            closestDistancesB = new ArrayList<Double>(k);
+            //initializeClosestDistancesB();
+            initializeClosestDistances();
             for (double[] trainInstanceB : trainArrayB) { // for each training instance of B-class
                 //System.out.println("Calculating distance to the sample from class B: " + Arrays.toString(trainInstanceB));
                 tmpDist = countDistance(trainInstanceB, testInstance);
-                currMaxDist = Collections.max(closestDistancesB);
+                currMaxDist = Collections.max(closestDistances);
                 if (tmpDist < currMaxDist) {
-                    closestDistancesB.remove(currMaxDist);
-                    closestDistancesB.add(tmpDist);
+                    closestDistances.remove(currMaxDist);
+                    closestDistances.add(tmpDist);
+                    swapForSecondClass++;
                 }
             }
 
-            System.out.println("Now closestDistances to the samples for class B are calculated: " + Arrays.toString(closestDistancesB.toArray()));
-            
-            checkWhichClass(className, closestDistancesA, closestDistancesB);
+           // System.out.println("Now closestDistancesB to the samples for class B are calculated: " + Arrays.toString(closestDistancesB.toArray()));
+            System.out.println("Now closestDistances to the samples for class B are calculated: " + Arrays.toString(closestDistances.toArray()));            
+            checkWhichClass(className);
             System.out.println("");
         }
     }
 
     //@Override
-    protected void checkWhichClass(String className, ArrayList<Double> closestDistancesA, ArrayList<Double> closestDistancesB) {
+    protected void checkWhichClass(String className) {
         switch (className) {
             case "A":
                 classACount++;
-                if (distA < distB) {
+                if (swapForSecondClass <= (k/2)) { // odd number division by 2 = equals k/2 - 0.5 !
                     correctlyClassifiedA++;
                     System.out.println("Correctly classified as class A! classACount: " + Integer.toString(classACount) + 
                                        ", correctlyClassifiedA: " + Integer.toString(correctlyClassifiedA) +
-                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA) +
-                                       ", unknownA: " + Integer.toString(unknownA));
+                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA));
+                                       //", unknownA: " + Integer.toString(unknownA));
                 }
-                else if (distA > distB) {
+                else {
                     incorrectlyClassifiedA++;
                     System.out.println("INCORRECTLY classified as class B! It was from class A! classACount: " + Integer.toString(classACount) + 
                                        ", correctlyClassifiedA: " + Integer.toString(correctlyClassifiedA) +
-                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA) +
-                                       ", unknownA: " + Integer.toString(unknownA));
-                }
-                else {
-                    unknownA++;
-                    System.out.println("UNKNOWN (distances the same)!! It was from class A! classACount: " + Integer.toString(classACount) + 
-                                       ", correctlyClassifiedA: " + Integer.toString(correctlyClassifiedA) +
-                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA) +
-                                       ", unknownA: " + Integer.toString(unknownA));
+                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA));
+                                       //", unknownA: " + Integer.toString(unknownA));
                 }
                 break;
             case "B":
                 classBCount++;
-                if (distB < distA) {
+                if (swapForSecondClass > (k/2)) {
                     correctlyClassifiedB++;
                     System.out.println("Correctly classified as class B! classBCount: " + Integer.toString(classBCount) + 
                                        ", correctlyClassifiedB: " + Integer.toString(correctlyClassifiedB) +
-                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB) +
-                                       ", unknownB: " + Integer.toString(unknownB));
+                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB));
                 }
-                else if (distB > distA){
+                else {
                     incorrectlyClassifiedB++;
                     System.out.println("INCORRECTLY classified as class A! It was from class B! classBCount: " + Integer.toString(classBCount) + 
                                        ", correctlyClassifiedB: " + Integer.toString(correctlyClassifiedB) +
-                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB) +
-                                       ", unknownB: " + Integer.toString(unknownB));
-                }
-                else {
-                    unknownB++;
-                    System.out.println("The instance is UNKNOWN!! It was from class B! classBCount: " + Integer.toString(classBCount) + 
-                                       ", correctlyClassifiedB: " + Integer.toString(correctlyClassifiedB) +
-                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB) +
-                                       ", unknownB: " + Integer.toString(unknownB));                  
+                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB));
                 }
                 break;
         }
     }
     
-    private double findMaxInClosestDistances() {
-        return Collections.max(closestDistances);
-    }
+//    private void initializeClosestDistancesA() {
+//        closestDistancesA = new ArrayList<Double>(k);
+//        for (int i=0; i<k; i++) {
+//            closestDistancesA.add(Double.MAX_VALUE);
+//        }
+//    }
+//    
+//    private void initializeClosestDistancesB() {
+//        closestDistancesB = new ArrayList<Double>(k);
+//        for (int i=0; i<k; i++) {
+//            closestDistancesB.add(Double.MAX_VALUE);
+//        }
+//    }
     
+    private void initializeClosestDistances() {
+        closestDistances = new ArrayList<Double>(k);
+        for (int i=0; i<k; i++) {
+            closestDistances.add(Double.MAX_VALUE);
+        }
+        swapForSecondClass = 0;
+    }
 }
