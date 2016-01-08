@@ -2,6 +2,7 @@
 
 import javax.swing.*;
 import Jama.*;
+import java.awt.event.ItemEvent;
 import java.util.Arrays;
 
 /*
@@ -476,30 +477,37 @@ public class PR_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_executeButtonActionPerformed
 
     private void classifierSelectComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_classifierSelectComboBoxItemStateChanged
-        int classifierTypeIndex = classifierSelectComboBox.getSelectedIndex();
-        switch (classifierTypeIndex) {
-            case 0:
-                kParameterTextField.setEnabled(false);
-                classifier = new NNClassifier(selector);
-                break;
-            case 1:
-                kParameterTextField.setEnabled(false);
-                classifier = new NNClassifier(selector);
-                break;
-            case 2:
-                kParameterTextField.setEnabled(true);
-                int k = Integer.parseInt(kParameterTextField.getText());
-                if (k%2 != 0) {
-                    classifier = new KNNClassifier(Double.parseDouble(trainSetSizeField.getText())/100.0, selector, k);
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            int classifierTypeIndex = classifierSelectComboBox.getSelectedIndex();
+            System.out.println("selectedIndex: " + classifierTypeIndex);
+            switch (classifierTypeIndex) {
+                case 0:
+                    System.out.println("Creating new NNClassifier!");
+                    kParameterTextField.setEnabled(false);
+                    classifier = new NNClassifier(selector);
                     break;
-                }
-                else {
-                    JOptionPane.showMessageDialog(null, "k parameter must be an odd number!\nType k one more time.");
-                }
-            case 3:
-                kParameterTextField.setEnabled(false);
-                classifier = new NNClassifier(selector);
-                break;
+                case 1:
+                    System.out.println("Creating new NNClassifier!");
+                    kParameterTextField.setEnabled(false);
+                    classifier = new NNClassifier(selector);
+                    break;
+                case 2:
+                    System.out.println("Creating new KNNClassifier!");
+                    kParameterTextField.setEnabled(true);
+                    int k = Integer.parseInt(kParameterTextField.getText());
+                    if (k%2 != 0) {
+                        classifier = new KNNClassifier(Double.parseDouble(trainSetSizeField.getText())/100.0, selector, k);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(null, "k parameter must be an odd number!\nType k one more time.");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Creating new NNClassifier!");
+                    kParameterTextField.setEnabled(false);
+                    classifier = new NNClassifier(selector);
+                    break;
+            }
         }
     }//GEN-LAST:event_classifierSelectComboBoxItemStateChanged
 
