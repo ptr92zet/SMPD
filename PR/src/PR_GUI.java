@@ -300,7 +300,7 @@ public class PR_GUI extends javax.swing.JFrame {
         classifierPanel.add(classifierPanelLabel);
         classifierPanelLabel.setBounds(10, 0, 79, 26);
 
-        classifierSelectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Nearest neighbor (NN)", "Nearest Mean (NM)", "k-Nearest Neighbor (k-NN)", "k-Nearest Mean (k-NM)" }));
+        classifierSelectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "                           ", "Nearest neighbor (NN)", "Nearest Mean (NM)", "k-Nearest Neighbor (k-NN)", "k-Nearest Mean (k-NM)" }));
         classifierSelectComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 classifierSelectComboBoxItemStateChanged(evt);
@@ -430,7 +430,7 @@ public class PR_GUI extends javax.swing.JFrame {
             // FNew is a matrix with samples projected to a new feature space
             newDimensionField.setText(FNew.length+"");
         }
-        classifier = new NNClassifier(selector);
+        //classifier = new NNClassifier(selector);
     }//GEN-LAST:event_deriveFeatureSpaceButtonActionPerformed
 
     private void trainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainButtonActionPerformed
@@ -438,7 +438,7 @@ public class PR_GUI extends javax.swing.JFrame {
             classifier.generateTrainingAndTestSets(Double.parseDouble(trainSetSizeField.getText())/100.0);
         }
         else {
-            JOptionPane.showMessageDialog(null, "You need to derive feature space first!");
+            JOptionPane.showMessageDialog(null, "You need to select the classifier first!");
         }
     }//GEN-LAST:event_trainButtonActionPerformed
 
@@ -482,9 +482,8 @@ public class PR_GUI extends javax.swing.JFrame {
             System.out.println("selectedIndex: " + classifierTypeIndex);
             switch (classifierTypeIndex) {
                 case 0:
-                    System.out.println("Creating new NNClassifier!");
+                    System.out.println("Nothing selected!");
                     kParameterTextField.setEnabled(false);
-                    classifier = new NNClassifier(selector);
                     break;
                 case 1:
                     System.out.println("Creating new NNClassifier!");
@@ -492,6 +491,11 @@ public class PR_GUI extends javax.swing.JFrame {
                     classifier = new NNClassifier(selector);
                     break;
                 case 2:
+                    System.out.println("Creating new NMClassifier!");
+                    kParameterTextField.setEnabled(false);
+                    classifier = new NMClassifier(selector);
+                    break;
+                case 3:
                     System.out.println("Creating new KNNClassifier!");
                     kParameterTextField.setEnabled(true);
                     int k = Integer.parseInt(kParameterTextField.getText());
@@ -502,10 +506,9 @@ public class PR_GUI extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, "k parameter must be an odd number!\nType k one more time.");
                     }
                     break;
-                case 3:
-                    System.out.println("Creating new NNClassifier!");
+                case 4:
+                    System.out.println("Nothing happens! This classifier is not implemented.");
                     kParameterTextField.setEnabled(false);
-                    classifier = new NNClassifier(selector);
                     break;
             }
         }
