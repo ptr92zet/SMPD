@@ -406,40 +406,45 @@ public class PR_GUI extends javax.swing.JFrame {
 
     private void classifierSelectComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_classifierSelectComboBoxItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            int classifierTypeIndex = classifierSelectComboBox.getSelectedIndex();
-            System.out.println("selectedIndex: " + classifierTypeIndex);
-            switch (classifierTypeIndex) {
-                case 0:
-                    System.out.println("Nothing selected!");
-                    kParameterTextField.setEnabled(false);
-                    break;
-                case 1:
-                    System.out.println("Creating new NNClassifier!");
-                    kParameterTextField.setEnabled(false);
-                    classifier = new NNClassifier(selector);
-                    break;
-                case 2:
-                    System.out.println("Creating new NMClassifier!");
-                    kParameterTextField.setEnabled(false);
-                    classifier = new NMClassifier(selector);
-                    break;
-                case 3:
-                    System.out.println("Creating new KNNClassifier!");
-                    kParameterTextField.setEnabled(true);
-                    int k = Integer.parseInt(kParameterTextField.getText());
-                    if (k%2 != 0) {
-                        classifier = new KNNClassifier(Double.parseDouble(trainSetSizeField.getText())/100.0, selector, k);
-                    }
-                    else {
-                        JOptionPane.showMessageDialog(null, "k parameter must be an odd number!\nType k one more time.");
-                    }
-                    break;
-                case 4:
-                    resultsClassificationField.setText("Nothing happens! This classifier is not implemented.");
-                    System.out.println("Nothing happens! This classifier is not implemented.");
-                    kParameterTextField.setEnabled(false);
-                    classifier = null;
-                    break;
+            if (selector.getFeatureWinnersFLD() != null) {
+                int classifierTypeIndex = classifierSelectComboBox.getSelectedIndex();
+                System.out.println("selectedIndex: " + classifierTypeIndex);
+                switch (classifierTypeIndex) {
+                    case 0:
+                        System.out.println("Nothing selected!");
+                        kParameterTextField.setEnabled(false);
+                        break;
+                    case 1:
+                        System.out.println("Creating new NNClassifier!");
+                        kParameterTextField.setEnabled(false);
+                        classifier = new NNClassifier(selector);
+                        break;
+                    case 2:
+                        System.out.println("Creating new NMClassifier!");
+                        kParameterTextField.setEnabled(false);
+                        classifier = new NMClassifier(selector);
+                        break;
+                    case 3:
+                        System.out.println("Creating new KNNClassifier!");
+                        kParameterTextField.setEnabled(true);
+                        int k = Integer.parseInt(kParameterTextField.getText());
+                        if (k%2 != 0) {
+                            classifier = new KNNClassifier(Double.parseDouble(trainSetSizeField.getText())/100.0, selector, k);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "k parameter must be an odd number!\nType k one more time.");
+                        }
+                        break;
+                    case 4:
+                        resultsClassificationField.setText("Nothing happens! This classifier is not implemented.");
+                        System.out.println("Nothing happens! This classifier is not implemented.");
+                        kParameterTextField.setEnabled(false);
+                        classifier = null;
+                        break;
+                }
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "You need to derive feature space first!");
             }
         }
     }//GEN-LAST:event_classifierSelectComboBoxItemStateChanged
