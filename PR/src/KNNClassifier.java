@@ -37,7 +37,6 @@ public class KNNClassifier extends AbstractClassifier {
 
             initializeClosestDistances();
             for (double[] trainInstanceA : trainArrayA) { // for each training instance of A-class
-                //System.out.println("Calculating distance to the sample from class A: " + Arrays.toString(trainInstanceA));
                 tmpDist = countDistance(trainInstanceA, testInstance);
                 currMaxDist = Collections.max(closestDistances);
                 if (tmpDist < currMaxDist) {
@@ -47,7 +46,6 @@ public class KNNClassifier extends AbstractClassifier {
             }
             System.out.println("Now closestDistances to the samples for class A are calculated: " + Arrays.toString(closestDistances.toArray()));
 
-            initializeClosestDistances();
             for (double[] trainInstanceB : trainArrayB) { // for each training instance of B-class
                 tmpDist = countDistance(trainInstanceB, testInstance);
                 currMaxDist = Collections.max(closestDistances);
@@ -73,15 +71,15 @@ public class KNNClassifier extends AbstractClassifier {
                     correctlyClassifiedA++;
                     System.out.println("Correctly classified as class A! classACount: " + Integer.toString(classACount) + 
                                        ", correctlyClassifiedA: " + Integer.toString(correctlyClassifiedA) +
-                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA));
-                                       //", unknownA: " + Integer.toString(unknownA));
+                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA) +
+                                       ", unknownA: " + Integer.toString(unknownA));
                 }
                 else {
                     incorrectlyClassifiedA++;
                     System.out.println("INCORRECTLY classified as class B! It was from class A! classACount: " + Integer.toString(classACount) + 
                                        ", correctlyClassifiedA: " + Integer.toString(correctlyClassifiedA) +
-                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA));
-                                       //", unknownA: " + Integer.toString(unknownA));
+                                       ", incorrectlyA: " + Integer.toString(incorrectlyClassifiedA) +
+                                       ", unknownA: " + Integer.toString(unknownA));
                 }
                 break;
             case "B":
@@ -90,13 +88,15 @@ public class KNNClassifier extends AbstractClassifier {
                     correctlyClassifiedB++;
                     System.out.println("Correctly classified as class B! classBCount: " + Integer.toString(classBCount) + 
                                        ", correctlyClassifiedB: " + Integer.toString(correctlyClassifiedB) +
-                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB));
+                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB) +
+                                       ", unknownB: " + Integer.toString(unknownB));
                 }
                 else {
                     incorrectlyClassifiedB++;
                     System.out.println("INCORRECTLY classified as class A! It was from class B! classBCount: " + Integer.toString(classBCount) + 
                                        ", correctlyClassifiedB: " + Integer.toString(correctlyClassifiedB) +
-                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB));
+                                       ", incorrectlyB: " + Integer.toString(incorrectlyClassifiedB) +
+                                       ", unknownB: " + Integer.toString(unknownB));
                 }
                 break;
         }

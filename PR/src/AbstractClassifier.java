@@ -206,7 +206,7 @@ public abstract class AbstractClassifier implements Classifier{
             int samplesCount = classACount+classBCount;
             int correctCount = correctlyClassifiedA + correctlyClassifiedB;
             int incorrectCount = incorrectlyClassifiedA + incorrectlyClassifiedB;
-            int unknownCount = classACount+classBCount;
+            int unknownCount = unknownA+unknownB;
             double percentage = ((double)correctCount/(double)samplesCount)*100.0;
             resultsInfo.append("END!").append("<br><br>");
             resultsInfo.append("Used classifier type: ").append(this.getClass().getSimpleName()).append("<br>");
