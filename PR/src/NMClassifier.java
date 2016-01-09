@@ -20,26 +20,6 @@ public class NMClassifier extends AbstractClassifier {
         this.closestDistanceA = 0.0;
         this.closestDistanceB = 0.0;        
     }
-
-    @Override
-    public void classify() {
-        int instanceCount, correctCount;
-        resetClassificationCounters();
-        
-        if (this.bestFeaturesIndexes != null) {
-            getDerivedFeaturesFromSelector();
-            classifyOneTestArray(testArrayA, "A");
-            classifyOneTestArray(testArrayB, "B");
-            instanceCount = classACount + classBCount;
-            System.out.println("\n\nEND!\nAll samples to classify was: " + Integer.toString(instanceCount));
-            correctCount = correctlyClassifiedA + correctlyClassifiedB;
-            System.out.println("Correctly classified samples: " + Integer.toString(correctCount));
-            System.out.println("Percentage: " + Double.toString(((double)correctCount/(double)instanceCount)*100.0) + "%");
-        }
-        else {
-            JOptionPane.showMessageDialog(null, "You need to derive feature space first!");
-        }
-    }
     
     @Override
     protected void classifyOneTestArray(double[][] testArray, String className) {
@@ -56,12 +36,17 @@ public class NMClassifier extends AbstractClassifier {
             closestDistanceB = countDistance(meanVectorB, testInstance);
             System.out.println("Now closestDistance to the mean for class B is calculated: " + Double.toString(closestDistanceA));
             
-            checkWhichClass(className, closestDistanceA, closestDistanceB);
+            determineClassForSample(className);
             System.out.println("");
         }
     }
     
-    protected void checkWhichClass(String className, double distA, double distB) {
+    @Override
+    protected void determineClassForSample(String className) {
+        determineClassForSample(className, closestDistanceA, closestDistanceB);
+    }
+    
+    private void determineClassForSample(String className, double distA, double distB) {
         switch (className) {
             case "A":
                 classACount++;

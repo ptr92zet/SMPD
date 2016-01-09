@@ -1,6 +1,8 @@
 import Jama.Matrix;
 import java.util.ArrayList;
 import java.util.Arrays;
+import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -30,13 +32,20 @@ public abstract class AbstractClassifier implements Classifier{
     protected int incorrectlyClassifiedA, incorrectlyClassifiedB;
     protected int unknownA, unknownB;
     
-    private boolean isDataSetTrained;
+    protected boolean isDataSetTrained;
+    protected boolean isClassified;
+    
+    protected String classificationResults;
+    protected String trainingAndTestSetsSizes;
     
     public AbstractClassifier(AbstractFeatureSelector selectorInProgram) {
         this.selector = selectorInProgram;
         this.bestFeaturesIndexes = selector.getFeatureWinnersFLD();
         this.allRowIndexes = new int[4][1];
         this.isDataSetTrained = false;
+        this.isClassified = false;
+        this.classificationResults = "";
+        this.trainingAndTestSetsSizes = "";
         this.resetClassificationCounters();
     }
 
@@ -72,18 +81,25 @@ public abstract class AbstractClassifier implements Classifier{
         this.testMatrixA = matrixA.transpose().getMatrix(trainMatrixASize, matrixASize-1, allColumnsIndicesA);
         this.testMatrixB = matrixB.transpose().getMatrix(trainMatrixBSize, matrixBSize-1, allColumnsIndicesB);
         
-        System.out.println("MatrixA Size: " + matrixASize + ", TrainArrayA Size: " + trainMatrixASize);
-        System.out.println("MatrixB Size: " + matrixBSize + ", TrainArrayB Size: " + trainMatrixBSize);
-        System.out.println("TestArrayA Size: " + testMatrixASize);
-        System.out.println("TestArrayB Size: " + testMatrixBSize);
-        
         isDataSetTrained = true;
+        
+        calcDataSetSizes();
     }
 
     @Override
     public void getDerivedFeaturesFromSelector() {
         getAllRowIndexes();
         getArraysBestFeaturesOnly();
+    }
+    
+    @Override
+    public void classify() {
+        resetClassificationCounters();
+        getDerivedFeaturesFromSelector();
+        classifyOneTestArray(testArrayA, "A");
+        classifyOneTestArray(testArrayB, "B");
+        isClassified = true;
+        calcClassificationResults();
     }
 
     @Override
@@ -96,11 +112,17 @@ public abstract class AbstractClassifier implements Classifier{
         this.incorrectlyClassifiedB = 0;
         this.unknownA = 0;
         this.unknownB = 0;
+        this.isClassified = false;
     }
 
     @Override
     public boolean isDataSetTrained() {
         return this.isDataSetTrained;
+    }
+    
+    @Override
+    public boolean isClassified() {
+        return this.isClassified;
     }
 
     @Override
@@ -111,11 +133,20 @@ public abstract class AbstractClassifier implements Classifier{
         }
         return Math.sqrt(dist); // distance between current test and training instance
     }
+    
+    @Override
+    public String getTrainingAndTestSetsSizes() {
+        return this.trainingAndTestSetsSizes;
+    }
+    
+    @Override
+    public String getClassificationResults() {
+        return this.classificationResults;
+    }
 
     // OWN ABSTRACT METHODS
     protected abstract void classifyOneTestArray(double[][] array, String className);
-   ///protected abstract void checkWhichClass(String className, double distA, double distB);
-    //protected abstract void checkWhichClass(String className, ArrayList<Double> closestDistances);
+    protected abstract void determineClassForSample(String className);
 
     // OWN HELPERS
     private void getAllRowIndexes() {
@@ -147,10 +178,56 @@ public abstract class AbstractClassifier implements Classifier{
     }
 
     private void getArraysBestFeaturesOnly() {
-        System.out.println("BEST FEATURES: " + Arrays.toString(bestFeaturesIndexes));
         trainArrayA = trainMatrixA.getMatrix(allRowIndexes[0], bestFeaturesIndexes).getArrayCopy();
         trainArrayB = trainMatrixB.getMatrix(allRowIndexes[1], bestFeaturesIndexes).getArrayCopy();
         testArrayA = testMatrixA.getMatrix(allRowIndexes[2], bestFeaturesIndexes).getArrayCopy();
         testArrayB = testMatrixB.getMatrix(allRowIndexes[3], bestFeaturesIndexes).getArrayCopy();
     }
+
+    private void calcDataSetSizes() {
+        StringBuilder sizesInfo = new StringBuilder("<html>");
+        if (isDataSetTrained) {
+            int matrixASize = selector.classMatrixes.get(0).copy().transpose().getRowDimension();
+            int matrixBSize = selector.classMatrixes.get(1).copy().transpose().getRowDimension();
+            int trainSetASize = (int)(matrixASize * this.trainPercentage); // x % from first class instances
+            int trainSetBSize = (int)(matrixBSize * this.trainPercentage); // x % from second class instances
+            int testSetASize = matrixASize - trainSetASize;
+            int testSetBSize = matrixBSize - trainSetBSize;
+            sizesInfo.append("Matrix A size: " + matrixASize + "<br>");
+            sizesInfo.append("Matrix B Size: " + matrixBSize + "<br>");
+            sizesInfo.append("Training set A size: " + trainSetASize + ", ");
+            sizesInfo.append("Test set A size: " + testSetASize + "<br>");
+            sizesInfo.append("Training set B size: " + trainSetBSize + ", ");
+            sizesInfo.append("Test set B size: " + testSetBSize + "<br>");
+            sizesInfo.append("</html>");
+        }
+        else {
+            sizesInfo.append("Data sets are not trained!");
+        }
+        trainingAndTestSetsSizes = sizesInfo.toString();
+    }
+    
+    private void calcClassificationResults() {
+        StringBuilder resultsInfo = new StringBuilder("<html>");
+        if (isClassified) {
+            int samplesCount = classACount+classBCount;
+            int correctCount = correctlyClassifiedA + correctlyClassifiedB;
+            int incorrectCount = incorrectlyClassifiedA + incorrectlyClassifiedB;
+            int unknownCount = classACount+classBCount;
+            double percentage = ((double)correctCount/(double)samplesCount)*100.0;
+            resultsInfo.append("END!");
+            resultsInfo.append("Used classifier type: " + this.getClass().getSimpleName() + "<br>");
+            resultsInfo.append("All samples to classify was: " + Integer.toString(samplesCount) + "<br>");
+            resultsInfo.append("Correctly classified samples: " + Integer.toString(correctCount) + "<br>");
+            resultsInfo.append("Badly classified samples: " + Integer.toString(incorrectCount) + "<br>");
+            resultsInfo.append("Unknown samples: " + Integer.toString(unknownCount) + "<br>");
+            resultsInfo.append("PERCENTAGE: " + Double.toString(percentage) + "%<br>");
+            resultsInfo.append("</html>");
+        }
+        else {
+            resultsInfo.append("Classification not performed!");
+        }
+        classificationResults = resultsInfo.toString();
+    }
+    
 }

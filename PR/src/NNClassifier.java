@@ -20,27 +20,6 @@ public class NNClassifier extends AbstractClassifier {
         super(selectorInProgram);
     }
 
-    // FROM INTERFACE
-    @Override
-    public void classify() {
-        int instanceCount, correctCount;
-        resetClassificationCounters();
-        
-        if (this.bestFeaturesIndexes != null) {
-            getDerivedFeaturesFromSelector();
-            classifyOneTestArray(testArrayA, "A");
-            classifyOneTestArray(testArrayB, "B");
-            instanceCount = classACount + classBCount;
-            System.out.println("\n\nEND!\nAll samples to classify was: " + Integer.toString(instanceCount));
-            correctCount = correctlyClassifiedA + correctlyClassifiedB;
-            System.out.println("Correctly classified samples: " + Integer.toString(correctCount));
-            System.out.println("Percentage: " + Double.toString(((double)correctCount/(double)instanceCount)*100.0) + "%");
-        }
-        else {
-            JOptionPane.showMessageDialog(null, "You need to derive feature space first!");
-        }
-    }
-
     // FROM ABSTRACT CLASS
     @Override
     protected void classifyOneTestArray(double[][] testArray, String className) {
@@ -72,13 +51,17 @@ public class NNClassifier extends AbstractClassifier {
             tmpDistanceB = closestDistance;
             System.out.println("Now closestDistance to the samples for class B is calculated: " + Double.toString(tmpDistanceB));
             
-            checkWhichClass(className, tmpDistanceA, tmpDistanceB);
+            determineClassForSample(className);
             System.out.println("");
         }
     }
 
-    //@Override
-    protected void checkWhichClass(String className, double distA, double distB) {
+    @Override
+    protected void determineClassForSample(String className) {
+        determineClassForSample(className, tmpDistanceA, tmpDistanceB);
+    }
+    
+    private void determineClassForSample(String className, double distA, double distB) {
         switch (className) {
             case "A":
                 classACount++;

@@ -16,5 +16,8 @@ public interface Classifier {
 
     public void resetClassificationCounters();
     public boolean isDataSetTrained();
+    public boolean isClassified();
     public double countDistance(double[] trainInstance, double[] testInstance);
+    public String getTrainingAndTestSetsSizes();
+    public String getClassificationResults();
 }

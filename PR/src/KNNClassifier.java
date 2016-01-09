@@ -31,26 +31,6 @@ public class KNNClassifier extends AbstractClassifier {
         //initializeClosestDistancesB();
         initializeClosestDistances();
     }
-
-    @Override
-    public void classify() {
-        int instanceCount, correctCount;
-        resetClassificationCounters();
-        
-        if (this.bestFeaturesIndexes != null) {
-            getDerivedFeaturesFromSelector();
-            classifyOneTestArray(testArrayA, "A");
-            classifyOneTestArray(testArrayB, "B");
-            instanceCount = classACount + classBCount;
-            System.out.println("\n\nEND!\nAll samples to classify was: " + Integer.toString(instanceCount));
-            correctCount = correctlyClassifiedA + correctlyClassifiedB;
-            System.out.println("Correctly classified samples: " + Integer.toString(correctCount));
-            System.out.println("Percentage: " + Double.toString(((double)correctCount/(double)instanceCount)*100.0) + "%");
-        }
-        else {
-            JOptionPane.showMessageDialog(null, "You need to derive feature space first!");
-        }
-    }
     
     @Override
     protected void classifyOneTestArray(double[][] testArray, String className) {
@@ -91,13 +71,13 @@ public class KNNClassifier extends AbstractClassifier {
 
            // System.out.println("Now closestDistancesB to the samples for class B are calculated: " + Arrays.toString(closestDistancesB.toArray()));
             System.out.println("Now closestDistances to the samples for class B are calculated: " + Arrays.toString(closestDistances.toArray()));            
-            checkWhichClass(className);
+            determineClassForSample(className);
             System.out.println("");
         }
     }
 
-    //@Override
-    protected void checkWhichClass(String className) {
+    @Override
+    protected void determineClassForSample(String className) {
         switch (className) {
             case "A":
                 classACount++;
@@ -133,20 +113,6 @@ public class KNNClassifier extends AbstractClassifier {
                 break;
         }
     }
-    
-//    private void initializeClosestDistancesA() {
-//        closestDistancesA = new ArrayList<Double>(k);
-//        for (int i=0; i<k; i++) {
-//            closestDistancesA.add(Double.MAX_VALUE);
-//        }
-//    }
-//    
-//    private void initializeClosestDistancesB() {
-//        closestDistancesB = new ArrayList<Double>(k);
-//        for (int i=0; i<k; i++) {
-//            closestDistancesB.add(Double.MAX_VALUE);
-//        }
-//    }
     
     private void initializeClosestDistances() {
         closestDistances = new ArrayList<Double>(k);

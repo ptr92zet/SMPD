@@ -12,7 +12,6 @@ import java.util.HashMap;
 public abstract class AbstractFeatureSelector implements FeatureSelector {
     protected String inputDataFileName;
     protected int featureCount = 0;
-    //protected double[][] featureMatrix, FNew; // original feature matrix and transformed feature matrix
     protected double bestFeatureFLD;
     protected int[] featureWinnersFLD;
     protected boolean isDataSetRead = false;
@@ -61,5 +60,14 @@ public abstract class AbstractFeatureSelector implements FeatureSelector {
     @Override
     public int getSelectedDimension() {
         return this.selectedDimension;
+    }
+    
+    @Override
+    public String getClassesNames() {
+        String classes = "";
+        for (String name : objectsCount.keySet()) {
+            classes += name + "\r\n";
+        }
+        return classes;
     }
 }

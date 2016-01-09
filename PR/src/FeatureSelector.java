@@ -19,4 +19,5 @@ public interface FeatureSelector {
     void readDataSetFromFile();
     void createClassMatrixes();
     void selectFeatures();
+    String getClassesNames();
 }
