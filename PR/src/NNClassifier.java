@@ -1,5 +1,4 @@
 import java.util.Arrays;
-import javax.swing.JOptionPane;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -13,25 +12,29 @@ import javax.swing.JOptionPane;
  */
 public class NNClassifier extends AbstractClassifier {
     
-    private double closestDistance, tmpDistanceA = 0, tmpDistanceB = 0;
+    private double closestDistance;
+    private double tmpDistanceA, tmpDistanceB;
     
     public NNClassifier(AbstractFeatureSelector selectorInProgram)
     {
         super(selectorInProgram);
+        this.closestDistance = 0.0;
+        this.tmpDistanceA = 0.0;
+        this.tmpDistanceB = 0.0;
     }
 
     // FROM ABSTRACT CLASS
     @Override
     protected void classifyOneTestArray(double[][] testArray, String className) {
-        double tmpDist = 0.0;
+        double tmpDist;
+
         System.out.println("--> Starting function classifyOneTestArray for class: " + className + "\n");
-        
+
         for (double[] testInstance: testArray) { // for each test instance of current class
             System.out.println("Classifying sample from " + className + ": " + Arrays.toString(testInstance));
-            
+
             closestDistance = Double.MAX_VALUE;
             for (double[] trainInstanceA : trainArrayA) { // for each training instance of A-class
-                //System.out.println("Calculating distance to the sample from class A: " + Arrays.toString(trainInstanceA));
                 tmpDist = countDistance(trainInstanceA, testInstance);
                 if (tmpDist < closestDistance) {
                     closestDistance = tmpDist;
@@ -39,7 +42,7 @@ public class NNClassifier extends AbstractClassifier {
             }
             tmpDistanceA = closestDistance;
             System.out.println("Now closestDistance to the samples for class A is calculated: " + Double.toString(tmpDistanceA));
-            
+
             closestDistance = Double.MAX_VALUE;
             for (double[] trainInstanceB : trainArrayB) { // for each training instance of B-class
                 //System.out.println("Calculating distance to the sample from class B: " + Arrays.toString(trainInstanceB));
@@ -50,7 +53,7 @@ public class NNClassifier extends AbstractClassifier {
             }
             tmpDistanceB = closestDistance;
             System.out.println("Now closestDistance to the samples for class B is calculated: " + Double.toString(tmpDistanceB));
-            
+
             determineClassForSample(className);
             System.out.println("");
         }
@@ -60,7 +63,7 @@ public class NNClassifier extends AbstractClassifier {
     protected void determineClassForSample(String className) {
         determineClassForSample(className, tmpDistanceA, tmpDistanceB);
     }
-    
+
     private void determineClassForSample(String className, double distA, double distB) {
         switch (className) {
             case "A":

@@ -1,5 +1,4 @@
 import java.util.Arrays;
-import javax.swing.JOptionPane;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -12,40 +11,40 @@ import javax.swing.JOptionPane;
  * @author ptr
  */
 public class NMClassifier extends AbstractClassifier {
-    
+
     private double closestDistanceA, closestDistanceB;
-    
+
     public NMClassifier(AbstractFeatureSelector selectorInProgram) {
         super(selectorInProgram);
         this.closestDistanceA = 0.0;
         this.closestDistanceB = 0.0;        
     }
-    
+
     @Override
     protected void classifyOneTestArray(double[][] testArray, String className) {
         double[] meanVectorA = createMeanVector(trainArrayA);
         double[] meanVectorB = createMeanVector(trainArrayB);
         System.out.println("--> Starting function classifyOneTestArray for class: " + className + "\n");
-        
+
         for (double[] testInstance: testArray) { // for each test instance of current class
             System.out.println("Classifying sample from " + className + ": " + Arrays.toString(testInstance));
-            
+
             closestDistanceA = countDistance(meanVectorA, testInstance);
             System.out.println("Now closestDistance to the mean for class A is calculated: " + Double.toString(closestDistanceA));
-            
+
             closestDistanceB = countDistance(meanVectorB, testInstance);
             System.out.println("Now closestDistance to the mean for class B is calculated: " + Double.toString(closestDistanceA));
-            
+
             determineClassForSample(className);
             System.out.println("");
         }
     }
-    
+
     @Override
     protected void determineClassForSample(String className) {
         determineClassForSample(className, closestDistanceA, closestDistanceB);
     }
-    
+
     private void determineClassForSample(String className, double distA, double distB) {
         switch (className) {
             case "A":
@@ -98,25 +97,23 @@ public class NMClassifier extends AbstractClassifier {
                 break;
         }
     }    
-    
+
     private double[] createMeanVector(double[][] array) {
         int rowCount = array.length;
-        System.out.println(rowCount);
         int dimension = selector.getSelectedDimension();
         double[] sums = new double[dimension];
         double[] meanVector = new double[dimension];
 
-        
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < rowCount; j++) {
                 sums[i] += array[j][i];
             }
         }
-        
+
         for (int i = 0; i < dimension; i++) {
             meanVector[i] = sums[i] / rowCount;
         }
+
         return meanVector;
     }
-    
 }

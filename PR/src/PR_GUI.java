@@ -1,7 +1,4 @@
-
-
 import javax.swing.*;
-import Jama.*;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
 
@@ -31,7 +28,6 @@ public class PR_GUI extends javax.swing.JFrame {
         setSize(720,410);
         selector = new FeatureSelectorImpl();
         selector.setSelectedDimension(Integer.parseInt((String)selectedFeatureSpaceNum.getSelectedItem()));
-        System.out.println("dim: " + selector.getSelectedDimension());
 
     }
 
@@ -439,22 +435,21 @@ public class PR_GUI extends javax.swing.JFrame {
                     }
                     break;
                 case 4:
+                    resultsClassificationField.setText("Nothing happens! This classifier is not implemented.");
                     System.out.println("Nothing happens! This classifier is not implemented.");
                     kParameterTextField.setEnabled(false);
+                    classifier = null;
                     break;
             }
         }
     }//GEN-LAST:event_classifierSelectComboBoxItemStateChanged
 
-    
     /**
     * @param args the command line arguments
     */
     public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PR_GUI().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new PR_GUI().setVisible(true);
         });
     }
 

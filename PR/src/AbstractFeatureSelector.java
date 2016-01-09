@@ -1,4 +1,3 @@
-
 import Jama.Matrix;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,16 +10,16 @@ import java.util.HashMap;
 
 public abstract class AbstractFeatureSelector implements FeatureSelector {
     protected String inputDataFileName;
-    protected int featureCount = 0;
+    protected int featureCount;
     protected double bestFeatureFLD;
     protected int[] featureWinnersFLD;
     protected boolean isDataSetRead = false;
     protected boolean isDataSetParsed = false;
     protected int selectedDimension;
 
-    protected ArrayList<Tuple<String, double[]>> features = new ArrayList<Tuple<String, double[]>>();
-    protected HashMap<String, Integer> objectsCount = new HashMap<String, Integer>();
-    protected ArrayList<Matrix> classMatrixes = new ArrayList<Matrix>();
+    protected ArrayList<Tuple<String, double[]>> features = new ArrayList<>();
+    protected HashMap<String, Integer> objectsCount = new HashMap<>();
+    protected ArrayList<Matrix> classMatrixes = new ArrayList<>();
 
     @Override
     public String getInputDataFileName() {

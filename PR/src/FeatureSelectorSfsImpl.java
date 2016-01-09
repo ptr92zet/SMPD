@@ -1,12 +1,9 @@
-
 import Jama.Matrix;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -50,7 +47,7 @@ public class FeatureSelectorSfsImpl extends AbstractFeatureSelector {
                     values = getDoubleValues(classFeatures.split(","));
                     featureCount = values.length;
 
-                    Tuple<String, double[]> tuple = new Tuple<String, double[]>(className, values);
+                    Tuple<String, double[]> tuple = new Tuple<>(className, values);
 
                     if (objectsCount.size() <= 0) {
                         objectsCount.put(className, 1);
@@ -73,10 +70,9 @@ public class FeatureSelectorSfsImpl extends AbstractFeatureSelector {
             inputDataFileName = fileChooser.getSelectedFile().getName();
             System.out.println("End of readDataSet. " + objectsCount.toString());
             isDataSetRead = true;
-
         }
-        else if (fileChooser.showOpenDialog(null) == JFileChooser.CANCEL_OPTION)
-            { }
+        else if (fileChooser.showOpenDialog(null) == JFileChooser.CANCEL_OPTION) {
+        }
     }
 
     @Override
@@ -86,18 +82,18 @@ public class FeatureSelectorSfsImpl extends AbstractFeatureSelector {
             int i = 0;
             double[][] dataRows = new double[noOfInstances][];
             Iterator it = features.iterator();
-            
+
             while (it.hasNext() && i < noOfInstances) {
                 Tuple tuple = (Tuple) it.next();
                 String classNameFromEntry = (String) tuple.getKey();
-                
+
                 if (classNameFromEntry.equals(className)) {
                     double[] row = (double[]) tuple.getValue();
                     dataRows[i] = row;
                     i++;
                 }
             }
-            
+
             Matrix classMatrix = new Matrix(dataRows);
             classMatrixes.add(classMatrix.transpose()); // instances are rows and features are columns - so transposing
             System.out.println("End of createClassMatrixes");
@@ -126,7 +122,6 @@ public class FeatureSelectorSfsImpl extends AbstractFeatureSelector {
             }
 
             System.out.println("Winners: " + Arrays.toString(chosenFeatures));
-
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -261,7 +256,7 @@ public class FeatureSelectorSfsImpl extends AbstractFeatureSelector {
         meanMatrix = createMeanMatrix(meanVector, currentXMatrix.getColumnDimension());
         diffMatrix = currentXMatrix.minus(meanMatrix);
         sMatrix = diffMatrix.times(diffMatrix.transpose());
-        Tuple<Double, double[]> tuple = new Tuple<Double, double[]>(sMatrix.det(), meanVector);
+        Tuple<Double, double[]> tuple = new Tuple<>(sMatrix.det(), meanVector);
 
         return tuple;
     }

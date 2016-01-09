@@ -1,8 +1,6 @@
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import javax.swing.JOptionPane;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,33 +14,27 @@ import javax.swing.JOptionPane;
  */
 public class KNNClassifier extends AbstractClassifier {
 
-    private int k;
-    //private double tmpDistanceA = 0, tmpDistanceB = 0;
-    //private ArrayList<Double> closestDistancesA;
-    //private ArrayList<Double> closestDistancesB;
+    private final int k;
     private ArrayList<Double> closestDistances;
     private int swapForSecondClass;
-    
+
     public KNNClassifier(double trainRatio, AbstractFeatureSelector selectorInProgram, int k) {
         super(selectorInProgram);
         this.k = k;
         this.swapForSecondClass = 0;
-        //initializeClosestDistancesA();
-        //initializeClosestDistancesB();
         initializeClosestDistances();
     }
-    
+
     @Override
     protected void classifyOneTestArray(double[][] testArray, String className) {
-        double tmpDist = 0.0;
-        double currMaxDist = 0.0;
+        double tmpDist;
+        double currMaxDist;
 
         System.out.println("--> Starting function classifyOneTestArray for class: " + className + "\n");
 
         for (double[] testInstance: testArray) { // for each test instance of current class
             System.out.println("Classifying sample from " + className + ": " + Arrays.toString(testInstance));
-            
-            //initializeClosestDistancesA();
+
             initializeClosestDistances();
             for (double[] trainInstanceA : trainArrayA) { // for each training instance of A-class
                 //System.out.println("Calculating distance to the sample from class A: " + Arrays.toString(trainInstanceA));
@@ -53,13 +45,10 @@ public class KNNClassifier extends AbstractClassifier {
                     closestDistances.add(tmpDist);
                 }
             }
-            //System.out.println("Now closestDistancesA to the samples for class A are calculated: " + Arrays.toString(closestDistancesA.toArray()));
             System.out.println("Now closestDistances to the samples for class A are calculated: " + Arrays.toString(closestDistances.toArray()));
 
-            //initializeClosestDistancesB();
             initializeClosestDistances();
             for (double[] trainInstanceB : trainArrayB) { // for each training instance of B-class
-                //System.out.println("Calculating distance to the sample from class B: " + Arrays.toString(trainInstanceB));
                 tmpDist = countDistance(trainInstanceB, testInstance);
                 currMaxDist = Collections.max(closestDistances);
                 if (tmpDist < currMaxDist) {
@@ -68,9 +57,8 @@ public class KNNClassifier extends AbstractClassifier {
                     swapForSecondClass++;
                 }
             }
-
-           // System.out.println("Now closestDistancesB to the samples for class B are calculated: " + Arrays.toString(closestDistancesB.toArray()));
-            System.out.println("Now closestDistances to the samples for class B are calculated: " + Arrays.toString(closestDistances.toArray()));            
+            System.out.println("Now closestDistances to the samples for class B are calculated: " + Arrays.toString(closestDistances.toArray()));
+            
             determineClassForSample(className);
             System.out.println("");
         }
@@ -113,9 +101,9 @@ public class KNNClassifier extends AbstractClassifier {
                 break;
         }
     }
-    
+
     private void initializeClosestDistances() {
-        closestDistances = new ArrayList<Double>(k);
+        closestDistances = new ArrayList<>(k);
         for (int i=0; i<k; i++) {
             closestDistances.add(Double.MAX_VALUE);
         }

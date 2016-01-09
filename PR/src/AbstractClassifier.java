@@ -1,8 +1,4 @@
 import Jama.Matrix;
-import java.util.ArrayList;
-import java.util.Arrays;
-import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,28 +12,28 @@ import javax.swing.JOptionPane;
  */
 public abstract class AbstractClassifier implements Classifier{
 
-    protected double trainPercentage;
     protected AbstractFeatureSelector selector;
 
-    protected int[] bestFeaturesIndexes;
-    protected int[][] allRowIndexes; // 0-trainingA, 1-trainingB, 2-testA, 3-testB
-    
+    protected double trainPercentage;
     protected Matrix trainMatrixA, trainMatrixB;
     protected Matrix testMatrixA, testMatrixB;
     protected double[][] trainArrayA, trainArrayB;
     protected double[][] testArrayA, testArrayB;
 
+    protected int[] bestFeaturesIndexes;
+    protected int[][] allRowIndexes; // 0-trainingA, 1-trainingB, 2-testA, 3-testB
+
     protected int classACount, classBCount;
     protected int correctlyClassifiedA, correctlyClassifiedB;
     protected int incorrectlyClassifiedA, incorrectlyClassifiedB;
     protected int unknownA, unknownB;
-    
+
     protected boolean isDataSetTrained;
     protected boolean isClassified;
-    
+
     protected String classificationResults;
     protected String trainingAndTestSetsSizes;
-    
+
     public AbstractClassifier(AbstractFeatureSelector selectorInProgram) {
         this.selector = selectorInProgram;
         this.bestFeaturesIndexes = selector.getFeatureWinnersFLD();
@@ -46,7 +42,6 @@ public abstract class AbstractClassifier implements Classifier{
         this.isClassified = false;
         this.classificationResults = "";
         this.trainingAndTestSetsSizes = "";
-        this.resetClassificationCounters();
     }
 
     // FROM INTERFACE
@@ -55,35 +50,33 @@ public abstract class AbstractClassifier implements Classifier{
         this.trainPercentage = trainRatio;
         Matrix matrixA = selector.classMatrixes.get(0).copy();
         Matrix matrixB = selector.classMatrixes.get(1).copy();
-        
+
         int matrixASize = matrixA.transpose().getRowDimension();
         int matrixBSize = matrixB.transpose().getRowDimension();
         int trainMatrixASize = (int)(matrixASize * trainPercentage); // x % from first class instances
-        int trainMatrixBSize = (int)(matrixBSize * trainPercentage); // x % from second class instances
-        int testMatrixASize = matrixASize - trainMatrixASize;
-        int testMatrixBSize = matrixBSize - trainMatrixBSize;       
-        
+        int trainMatrixBSize = (int)(matrixBSize * trainPercentage); // x % from second class instances     
+
         int colDimA = matrixA.transpose().getColumnDimension();
         int colDimB = matrixB.transpose().getColumnDimension();
-        
+
         int[] allColumnsIndicesA = new int[colDimA];
         int[] allColumnsIndicesB = new int[colDimB];
-        
+
         for (int i=0; i<colDimA; i++) {
             allColumnsIndicesA[i] = i;
         }
         for (int i=0; i<colDimB; i++) {
             allColumnsIndicesB[i] = i;
         }
-        
+
         this.trainMatrixA = matrixA.transpose().getMatrix(0, trainMatrixASize-1, allColumnsIndicesA); 
         this.trainMatrixB = matrixB.transpose().getMatrix(0, trainMatrixBSize-1, allColumnsIndicesB);
         this.testMatrixA = matrixA.transpose().getMatrix(trainMatrixASize, matrixASize-1, allColumnsIndicesA);
         this.testMatrixB = matrixB.transpose().getMatrix(trainMatrixBSize, matrixBSize-1, allColumnsIndicesB);
-        
+
         isDataSetTrained = true;
-        
-        calcDataSetSizes();
+
+        prepareDataSetSizesInfo();
     }
 
     @Override
@@ -91,7 +84,7 @@ public abstract class AbstractClassifier implements Classifier{
         getAllRowIndexes();
         getArraysBestFeaturesOnly();
     }
-    
+
     @Override
     public void classify() {
         resetClassificationCounters();
@@ -99,7 +92,7 @@ public abstract class AbstractClassifier implements Classifier{
         classifyOneTestArray(testArrayA, "A");
         classifyOneTestArray(testArrayB, "B");
         isClassified = true;
-        calcClassificationResults();
+        prepareClassificationInfo();
     }
 
     @Override
@@ -119,7 +112,7 @@ public abstract class AbstractClassifier implements Classifier{
     public boolean isDataSetTrained() {
         return this.isDataSetTrained;
     }
-    
+
     @Override
     public boolean isClassified() {
         return this.isClassified;
@@ -131,14 +124,14 @@ public abstract class AbstractClassifier implements Classifier{
         for (int i=0; i<trainInstance.length; i++) { // for each feature within the given dimension
             dist += (testInstance[i]- trainInstance[i])*(testInstance[i]- trainInstance[i]);
         }
-        return Math.sqrt(dist); // distance between current test and training instance
+        return Math.sqrt(dist); // distance between current test and training instance (or mean)
     }
-    
+
     @Override
     public String getTrainingAndTestSetsSizes() {
         return this.trainingAndTestSetsSizes;
     }
-    
+
     @Override
     public String getClassificationResults() {
         return this.classificationResults;
@@ -151,25 +144,25 @@ public abstract class AbstractClassifier implements Classifier{
     // OWN HELPERS
     private void getAllRowIndexes() {
         int[] indexes;
-        
+
         indexes = new int[trainMatrixA.getRowDimension()];
         for(int i=0; i<trainMatrixA.getRowDimension(); i++) {
             indexes[i] = i;
         }
         allRowIndexes[0] = indexes;
-        
+
         indexes = new int[trainMatrixB.getRowDimension()];
         for(int i=0; i<trainMatrixB.getRowDimension(); i++) {
             indexes[i] = i;
         }
         allRowIndexes[1] = indexes;
-        
+
         indexes = new int[testMatrixA.getRowDimension()];
         for(int i=0; i<testMatrixA.getRowDimension(); i++) {
             indexes[i] = i;
         }
         allRowIndexes[2] = indexes;
-        
+
         indexes = new int[testMatrixB.getRowDimension()];
         for(int i=0; i<testMatrixB.getRowDimension(); i++) {
             indexes[i] = i;
@@ -184,7 +177,7 @@ public abstract class AbstractClassifier implements Classifier{
         testArrayB = testMatrixB.getMatrix(allRowIndexes[3], bestFeaturesIndexes).getArrayCopy();
     }
 
-    private void calcDataSetSizes() {
+    private void prepareDataSetSizesInfo() {
         StringBuilder sizesInfo = new StringBuilder("<html>");
         if (isDataSetTrained) {
             int matrixASize = selector.classMatrixes.get(0).copy().transpose().getRowDimension();
@@ -193,12 +186,12 @@ public abstract class AbstractClassifier implements Classifier{
             int trainSetBSize = (int)(matrixBSize * this.trainPercentage); // x % from second class instances
             int testSetASize = matrixASize - trainSetASize;
             int testSetBSize = matrixBSize - trainSetBSize;
-            sizesInfo.append("Matrix A size: " + matrixASize + "<br>");
-            sizesInfo.append("Matrix B Size: " + matrixBSize + "<br>");
-            sizesInfo.append("Training set A size: " + trainSetASize + ", ");
-            sizesInfo.append("Test set A size: " + testSetASize + "<br>");
-            sizesInfo.append("Training set B size: " + trainSetBSize + ", ");
-            sizesInfo.append("Test set B size: " + testSetBSize + "<br>");
+            sizesInfo.append("Matrix A size: ").append(matrixASize).append("<br>");
+            sizesInfo.append("Matrix B Size: ").append(matrixBSize).append("<br>");
+            sizesInfo.append("Training set A size: ").append(trainSetASize).append(", ");
+            sizesInfo.append("Test set A size: ").append(testSetASize).append("<br>");
+            sizesInfo.append("Training set B size: ").append(trainSetBSize).append(", ");
+            sizesInfo.append("Test set B size: ").append(testSetBSize).append("<br>");
             sizesInfo.append("</html>");
         }
         else {
@@ -206,8 +199,8 @@ public abstract class AbstractClassifier implements Classifier{
         }
         trainingAndTestSetsSizes = sizesInfo.toString();
     }
-    
-    private void calcClassificationResults() {
+
+    private void prepareClassificationInfo() {
         StringBuilder resultsInfo = new StringBuilder("<html>");
         if (isClassified) {
             int samplesCount = classACount+classBCount;
@@ -215,13 +208,13 @@ public abstract class AbstractClassifier implements Classifier{
             int incorrectCount = incorrectlyClassifiedA + incorrectlyClassifiedB;
             int unknownCount = classACount+classBCount;
             double percentage = ((double)correctCount/(double)samplesCount)*100.0;
-            resultsInfo.append("END!");
-            resultsInfo.append("Used classifier type: " + this.getClass().getSimpleName() + "<br>");
-            resultsInfo.append("All samples to classify was: " + Integer.toString(samplesCount) + "<br>");
-            resultsInfo.append("Correctly classified samples: " + Integer.toString(correctCount) + "<br>");
-            resultsInfo.append("Badly classified samples: " + Integer.toString(incorrectCount) + "<br>");
-            resultsInfo.append("Unknown samples: " + Integer.toString(unknownCount) + "<br>");
-            resultsInfo.append("PERCENTAGE: " + Double.toString(percentage) + "%<br>");
+            resultsInfo.append("END!").append("<br><br>");
+            resultsInfo.append("Used classifier type: ").append(this.getClass().getSimpleName()).append("<br>");
+            resultsInfo.append("All samples to classify was: ").append(samplesCount).append("<br>");
+            resultsInfo.append("Correctly classified samples: ").append(correctCount).append("<br>");
+            resultsInfo.append("Badly classified samples: ").append(incorrectCount).append("<br>");
+            resultsInfo.append("Unknown samples: ").append(unknownCount).append("<br>");
+            resultsInfo.append("PERCENTAGE: ").append(percentage).append("%<br>");
             resultsInfo.append("</html>");
         }
         else {
@@ -229,5 +222,4 @@ public abstract class AbstractClassifier implements Classifier{
         }
         classificationResults = resultsInfo.toString();
     }
-    
 }

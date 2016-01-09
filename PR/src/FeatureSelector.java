@@ -9,13 +9,13 @@ public interface FeatureSelector {
     int getFeatureCount();
     int[] getFeatureWinnersFLD();
     double getBestFeatureFLD();
-    
+
     boolean isDataSetRead();
     boolean isDataSetParsed();
-    
+
     void setSelectedDimension(int dimension);
     int getSelectedDimension();
-    
+
     void readDataSetFromFile();
     void createClassMatrixes();
     void selectFeatures();
